@@ -1,5 +1,4 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import Anthropic from 'npm:@anthropic-ai/sdk'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,6 +6,21 @@ const corsHeaders = {
 }
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+
+const SYSTEM_PROMPT = `Bạn là trợ lý ẩm thực thân thiện cho sinh viên khu Hòa Lạc, Hà Nội.
+Phân tích yêu cầu người dùng và trả về JSON:
+{
+  "filters": {
+    "vendor_type": "fixed_shop" | "student_booth" | null,
+    "category": "com" | "bun_pho_mi" | "tra_sua" | "cafe" | "an_vat" | "do_uong" | null,
+    "max_price": <số nguyên VND hoặc null>,
+    "has_ship": true | false | null,
+    "is_open_now": true | false | null,
+    "keywords": [<từ khóa tên quán hoặc khu vực, mảng string, tối đa 2 phần tử>]
+  },
+  "explanation": "<1-2 câu ngắn, thân thiện, bằng tiếng Việt, giải thích mình sẽ tìm gì>"
+}
+Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc null. Chỉ trả về JSON thuần túy, không markdown.`
 
 function isVendorOpen(openingHours: Record<string, string> | null): boolean {
   if (!openingHours) return false
@@ -22,6 +36,35 @@ function isVendorOpen(openingHours: Record<string, string> | null): boolean {
   }
   const current = now.getHours() * 60 + now.getMinutes()
   return current >= toMin(parts[0]) && current <= toMin(parts[1])
+}
+
+function stripMarkdownFences(text: string): string {
+  return text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+}
+
+async function callGroq(apiKey: string, query: string): Promise<string> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: query },
+      ],
+      max_tokens: 512,
+      temperature: 0.1,
+    }),
+  })
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(`Groq ${res.status}: ${body}`)
+  }
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content ?? ''
 }
 
 Deno.serve(async (req) => {
@@ -44,30 +87,6 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     )
 
-    const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! })
-
-    // Parse natural language query into structured filters + explanation
-    const aiMsg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
-      system: `Bạn là trợ lý ẩm thực thân thiện cho sinh viên khu Hòa Lạc, Hà Nội.
-Phân tích yêu cầu người dùng và trả về JSON:
-{
-  "filters": {
-    "vendor_type": "fixed_shop" | "student_booth" | null,
-    "category": "com" | "bun_pho_mi" | "tra_sua" | "cafe" | "an_vat" | "do_uong" | null,
-    "max_price": <số nguyên VND hoặc null>,
-    "has_ship": true | false | null,
-    "is_open_now": true | false | null,
-    "keywords": [<từ khóa tên quán hoặc khu vực, mảng string, tối đa 2 phần tử>]
-  },
-  "explanation": "<1-2 câu ngắn, thân thiện, bằng tiếng Việt, giải thích mình sẽ tìm gì>"
-}
-Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc null. Chỉ trả về JSON thuần túy, không markdown.`,
-      messages: [{ role: 'user', content: query }],
-    })
-
-    // Parse AI response, gracefully fall back on errors
     let filters = {
       vendor_type: null as string | null,
       category: null as string | null,
@@ -79,15 +98,17 @@ Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc nu
     let explanation = 'Đây là các quán ăn mình tìm được cho bạn!'
 
     try {
-      const raw = (aiMsg.content[0] as { type: string; text: string }).text.trim()
-      const parsed = JSON.parse(raw)
+      const apiKey = Deno.env.get('GROQ_API_KEY')!
+      if (!apiKey) throw new Error('GROQ_API_KEY is not set')
+      const rawText = await callGroq(apiKey, query)
+      const parsed = JSON.parse(stripMarkdownFences(rawText))
       if (parsed.filters) filters = { ...filters, ...parsed.filters }
       if (parsed.explanation) explanation = parsed.explanation
-    } catch {
-      // use defaults
+    } catch (e) {
+      console.error('Groq call failed:', e)
+      // use defaults on AI failure — still return DB results
     }
 
-    // Build Supabase vendor query with parsed filters
     // deno-lint-ignore no-explicit-any
     let q: any = supabase
       .from('vendors')
@@ -113,7 +134,6 @@ Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc nu
     const { data: raw, error: dbError } = await q as { data: any[] | null; error: any }
     if (dbError) throw dbError
 
-    // Compute rating + open status, strip raw reviews array
     // deno-lint-ignore no-explicit-any
     let vendors = (raw ?? []).map((v: any) => {
       const revs = Array.isArray(v.reviews) ? v.reviews : []
@@ -130,7 +150,6 @@ Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc nu
       vendors = vendors.filter((v: any) => v.is_open)
     }
 
-    // Log to ai_search_logs (fire and forget)
     void supabase.from('ai_search_logs').insert({
       user_id: userId ?? null,
       query,
