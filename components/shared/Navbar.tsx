@@ -1,18 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { LogoutButton } from '@/components/shared/LogoutButton'
 import { cn } from '@/lib/utils'
-import { Utensils, MessageSquare, Sparkles, Store, User, ShoppingBag } from 'lucide-react'
+import { Utensils, MessageSquare, Sparkles, Store, ShoppingBag } from 'lucide-react'
 
 const NAV_LINKS = [
   { href: '/explore', label: 'Khám phá', icon: Utensils },
@@ -85,70 +75,15 @@ export async function Navbar() {
                 <ShoppingBag className="w-4 h-4" />
               </Link>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  className="flex items-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all outline-none"
-                  render={
-                    <button aria-label="Menu tài khoản" />
-                  }
-                >
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={profile.avatar_url ?? undefined} alt={profile.full_name ?? 'Avatar'} />
-                    <AvatarFallback className="bg-primary text-white text-xs font-semibold">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end" className="w-52 mt-1">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-sm text-neutral-900 truncate">
-                        {profile.full_name ?? 'Người dùng'}
-                      </span>
-                      <span className="text-xs text-neutral-500 truncate">{user.email}</span>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem className="p-0">
-                    <Link href="/account" className="flex items-center gap-2 px-1.5 py-1 w-full">
-                      <User className="w-4 h-4" />
-                      Tài khoản
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="p-0">
-                    <Link href="/account/orders" className="flex items-center gap-2 px-1.5 py-1 w-full">
-                      <ShoppingBag className="w-4 h-4" />
-                      Đơn hàng của tôi
-                    </Link>
-                  </DropdownMenuItem>
-
-                  {(profile.role === 'seller' || profile.role === 'admin') && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="p-0">
-                        <Link href="/seller/dashboard" className="flex items-center gap-2 px-1.5 py-1 w-full">
-                          <Store className="w-4 h-4" />
-                          Quản lý quán
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-
-                  {profile.role === 'admin' && (
-                    <DropdownMenuItem className="p-0">
-                      <Link href="/admin/dashboard" className="flex items-center gap-2 px-1.5 py-1 w-full">
-                        <Sparkles className="w-4 h-4" />
-                        Admin
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-
-                  <DropdownMenuSeparator />
-                  <LogoutButton />
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Link
+                href="/account"
+                className="flex items-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all"
+                aria-label="Tài khoản của tôi"
+              >
+                <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-semibold">
+                  {initials}
+                </span>
+              </Link>
             </>
           ) : (
             <div className="flex items-center gap-2">
