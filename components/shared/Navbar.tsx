@@ -56,7 +56,7 @@ export async function Navbar() {
             </Link>
           ))}
           <Link
-            href="/seller/dashboard"
+            href="/account/become-seller"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
           >
             <Store className="w-3.5 h-3.5" />
@@ -120,7 +120,7 @@ export async function Navbar() {
           </Link>
         ))}
         <Link
-          href="/seller/dashboard"
+          href="/account/become-seller"
           className="flex flex-col items-center gap-0.5 px-4 py-1 text-neutral-500 hover:text-primary transition-colors"
         >
           <Store className="w-5 h-5" />
