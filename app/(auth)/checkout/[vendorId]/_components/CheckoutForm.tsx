@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import Image from 'next/image'
 import { Plus, Minus, Trash2, Loader2, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -13,14 +10,6 @@ import { formatVND, cartTotal } from '@/lib/cart'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-
-const schema = z.object({
-  buyer_name: z.string().min(2, 'Nhập họ tên'),
-  buyer_phone: z.string().regex(/^(0|\+84)[0-9]{8,9}$/, 'Số điện thoại không hợp lệ'),
-  note: z.string().max(500).optional(),
-  fulfillment_method: z.enum(['pickup', 'seller_delivery']),
-})
-type FormData = z.infer<typeof schema>
 
 interface CheckoutFormProps {
   vendorId: string
@@ -36,18 +25,13 @@ export function CheckoutForm({
   const router = useRouter()
   const { cart, updateQuantity, clearCart } = useCart()
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<{ buyer_name?: string; buyer_phone?: string }>({})
 
-  const {
-    register, handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      buyer_name: initialName ?? '',
-      buyer_phone: initialPhone ?? '',
-      fulfillment_method: 'pickup',
-    },
-  })
+  const [buyerName, setBuyerName] = useState(initialName ?? '')
+  const [buyerPhone, setBuyerPhone] = useState(initialPhone ?? '')
+  const [note, setNote] = useState('')
+  const [fulfillmentMethod, setFulfillmentMethod] = useState<'pickup' | 'seller_delivery'>('pickup')
 
   // Redirect if cart is empty or wrong vendor
   useEffect(() => {
@@ -60,7 +44,15 @@ export function CheckoutForm({
   const items = cart?.vendorId === vendorId ? (cart?.items ?? []) : []
   const total = cartTotal(items)
 
-  const onSubmit = async (data: FormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const newErrors: { buyer_name?: string; buyer_phone?: string } = {}
+    if (!buyerName.trim() || buyerName.trim().length < 2) newErrors.buyer_name = 'Nhập họ tên (tối thiểu 2 ký tự)'
+    if (!buyerPhone.trim() || !/^(0|\+84)[0-9]{8,9}$/.test(buyerPhone.trim())) newErrors.buyer_phone = 'Số điện thoại không hợp lệ (VD: 0912345678)'
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    setIsSubmitting(true)
     setSubmitError(null)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -72,16 +64,16 @@ export function CheckoutForm({
         user_id: user.id,
         vendor_id: vendorId,
         status: 'submitted',
-        fulfillment_method: data.fulfillment_method,
-        note: data.note?.trim() || null,
-        buyer_name: data.buyer_name,
-        buyer_phone: data.buyer_phone,
+        fulfillment_method: fulfillmentMethod,
+        note: note.trim() || null,
+        buyer_name: buyerName.trim(),
+        buyer_phone: buyerPhone.trim(),
         total_price: total,
       })
       .select('id')
       .single()
 
-    if (orderErr || !order) { setSubmitError('Đặt món thất bại. Thử lại.'); return }
+    if (orderErr || !order) { setSubmitError('Đặt món thất bại. Thử lại.'); setIsSubmitting(false); return }
 
     const { error: itemsErr } = await supabase.from('order_items').insert(
       items.map(item => ({
@@ -93,7 +85,7 @@ export function CheckoutForm({
         subtotal: item.price * item.quantity,
       }))
     )
-    if (itemsErr) { setSubmitError('Lỗi khi lưu món. Thử lại.'); return }
+    if (itemsErr) { setSubmitError('Lỗi khi lưu món. Thử lại.'); setIsSubmitting(false); return }
 
     clearCart()
     router.push(`/checkout/success?orderId=${order.id}`)
@@ -167,20 +159,22 @@ export function CheckoutForm({
       </div>
 
       {/* Order form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 space-y-4">
           <h2 className="text-sm font-semibold text-neutral-800">Thông tin liên hệ</h2>
 
           <div className="space-y-1.5">
             <Label htmlFor="buyer_name" className="text-sm font-medium text-neutral-700">Họ và tên *</Label>
-            <Input id="buyer_name" placeholder="Nguyễn Văn A" className="h-11" {...register('buyer_name')} />
-            {errors.buyer_name && <p className="text-xs text-red-500">{errors.buyer_name.message}</p>}
+            <Input id="buyer_name" type="text" placeholder="Nguyễn Văn A" className="h-11"
+              value={buyerName} onChange={e => { setBuyerName(e.target.value); setErrors(v => ({ ...v, buyer_name: undefined })) }} />
+            {errors.buyer_name && <p className="text-xs text-red-500">{errors.buyer_name}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="buyer_phone" className="text-sm font-medium text-neutral-700">Số điện thoại *</Label>
-            <Input id="buyer_phone" type="tel" placeholder="0912345678" className="h-11" {...register('buyer_phone')} />
-            {errors.buyer_phone && <p className="text-xs text-red-500">{errors.buyer_phone.message}</p>}
+            <Input id="buyer_phone" type="text" placeholder="0912345678" className="h-11"
+              value={buyerPhone} onChange={e => { setBuyerPhone(e.target.value); setErrors(v => ({ ...v, buyer_phone: undefined })) }} />
+            {errors.buyer_phone && <p className="text-xs text-red-500">{errors.buyer_phone}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -191,7 +185,8 @@ export function CheckoutForm({
               placeholder="VD: không cay, thêm rau, giao tầng 2..."
               maxLength={500}
               className="w-full rounded-xl border border-neutral-200 px-3.5 py-2.5 text-sm resize-none outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-colors placeholder:text-neutral-400"
-              {...register('note')}
+              value={note}
+              onChange={e => setNote(e.target.value)}
             />
           </div>
         </div>
@@ -210,8 +205,9 @@ export function CheckoutForm({
               <input
                 type="radio"
                 value={opt.value}
+                checked={fulfillmentMethod === opt.value}
+                onChange={() => setFulfillmentMethod(opt.value as 'pickup' | 'seller_delivery')}
                 className="mt-0.5 accent-primary shrink-0"
-                {...register('fulfillment_method')}
               />
               <div>
                 <p className="text-sm font-medium text-neutral-800">{opt.label}</p>
@@ -231,7 +227,7 @@ export function CheckoutForm({
           className="w-full h-12 text-base font-semibold gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSubmitting ? 'Đang gửi…' : `Xác nhận đặt món · ${formatVND(total)}`}
+          {isSubmitting ? 'Đang gử…' : `Xác nhận đặt món · ${formatVND(total)}`}
         </Button>
       </form>
     </div>
