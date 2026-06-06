@@ -115,7 +115,7 @@ function LoginForm() {
               <Label htmlFor="email" className="text-sm font-medium text-neutral-700">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input id="email" type="email" autoComplete="email" placeholder="you@example.com" className="pl-9 h-11" {...register('email')} />
+                <Input id="email" type="text" autoComplete="email" placeholder="you@example.com" className="pl-9 h-11" {...register('email')} />
               </div>
               {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
