@@ -61,7 +61,8 @@ export function NotificationBell({ userId }: { userId: string }) {
   }, [])
 
   async function fetchNotifications() {
-    const { data } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase as any)
       .from('notifications')
       .select('*')
       .eq('user_id', userId)
@@ -72,7 +73,8 @@ export function NotificationBell({ userId }: { userId: string }) {
 
   async function markAsRead(n: Notification) {
     if (!n.is_read) {
-      await supabase.from('notifications').update({ is_read: true }).eq('id', n.id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('notifications').update({ is_read: true }).eq('id', n.id)
       setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x))
     }
     setOpen(false)
@@ -82,7 +84,8 @@ export function NotificationBell({ userId }: { userId: string }) {
   async function markAllAsRead() {
     const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id)
     if (unreadIds.length === 0) return
-    await supabase.from('notifications').update({ is_read: true }).in('id', unreadIds)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('notifications').update({ is_read: true }).in('id', unreadIds)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
   }
 
