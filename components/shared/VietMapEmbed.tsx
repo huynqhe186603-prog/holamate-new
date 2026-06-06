@@ -2,6 +2,28 @@
 
 import { useEffect, useRef } from 'react'
 
+const CDN_CSS = 'https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css'
+const CDN_JS = 'https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js'
+
+function injectStyle(href: string) {
+  if (document.querySelector(`link[href="${href}"]`)) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = href
+  document.head.appendChild(link)
+}
+
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return }
+    const s = document.createElement('script')
+    s.src = src
+    s.onload = () => resolve()
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
+
 interface VietMapEmbedProps {
   latitude: number
   longitude: number
@@ -28,8 +50,12 @@ export function VietMapEmbed({
     let cancelled = false
 
     const initMap = async () => {
-      const { default: vietmapgl } = await import('@vietmap/vietmap-gl-js')
+      injectStyle(CDN_CSS)
+      await loadScript(CDN_JS)
       if (cancelled || !containerRef.current) return
+
+      const vietmapgl = (window as any).vietmapgl
+      if (!vietmapgl) return
 
       const map = new vietmapgl.Map({
         container: containerRef.current,
@@ -38,7 +64,6 @@ export function VietMapEmbed({
         zoom,
         attributionControl: false,
       })
-
       mapRef.current = map
 
       map.on('load', () => {
