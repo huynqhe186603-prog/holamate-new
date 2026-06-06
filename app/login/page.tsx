@@ -15,8 +15,8 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
 const loginSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu tối thiểu 6 ký tự'),
+  email: z.string().min(1, 'Nhập email'),
+  password: z.string().min(1, 'Nhập mật khẩu'),
 })
 type LoginData = z.infer<typeof loginSchema>
 
@@ -110,7 +110,7 @@ function LoginForm() {
             <Separator className="flex-1" />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium text-neutral-700">Email</Label>
               <div className="relative">
