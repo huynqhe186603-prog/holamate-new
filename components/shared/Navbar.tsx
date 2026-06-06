@@ -29,6 +29,14 @@ export async function Navbar() {
     ? profile.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
     : user?.email?.[0]?.toUpperCase() ?? 'U'
 
+  const sellerHref = !user
+    ? '/login?redirect=/account/become-seller'
+    : profile?.role === 'admin'
+      ? '/admin/dashboard'
+      : profile?.role === 'seller'
+        ? '/seller/dashboard'
+        : '/account/become-seller'
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-md">
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -56,7 +64,7 @@ export async function Navbar() {
             </Link>
           ))}
           <Link
-            href="/account/become-seller"
+            href={sellerHref}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
           >
             <Store className="w-3.5 h-3.5" />
@@ -120,7 +128,7 @@ export async function Navbar() {
           </Link>
         ))}
         <Link
-          href="/account/become-seller"
+          href={sellerHref}
           className="flex flex-col items-center gap-0.5 px-4 py-1 text-neutral-500 hover:text-primary transition-colors"
         >
           <Store className="w-5 h-5" />
