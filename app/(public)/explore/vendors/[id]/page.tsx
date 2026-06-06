@@ -10,6 +10,7 @@ import { CartButton } from '@/components/cart/CartButton'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { isVendorOpen, formatOpeningHoursFull } from '@/lib/utils/explore'
+import { VietMapEmbed } from '@/components/shared/VietMapEmbed'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, UtensilsCrossed,
 } from 'lucide-react'
@@ -219,15 +220,11 @@ export default async function VendorDetailPage({ params }: Props) {
           <div className="py-6">
             <h2 className="text-base font-bold text-neutral-900 mb-4">Vị trí</h2>
             <div className="rounded-2xl overflow-hidden border border-neutral-200 aspect-[16/9]">
-              <iframe
-                src={`https://maps.google.com/maps?q=${vendor.latitude},${vendor.longitude}&z=16&output=embed`}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`Bản đồ ${vendor.name}`}
+              <VietMapEmbed
+                latitude={vendor.latitude}
+                longitude={vendor.longitude}
+                zoom={16}
+                title={vendor.name}
               />
             </div>
           </div>

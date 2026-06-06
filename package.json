@@ -14,6 +14,7 @@
         "@supabase/ssr": "^0.10.3",
         "@supabase/supabase-js": "^2.107.0",
         "@tanstack/react-query": "^5.101.0",
+        "@vietmap/vietmap-gl-js": "^7.0.0-pre.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "geist": "^1.7.2",
