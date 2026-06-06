@@ -139,7 +139,7 @@ function RegisterForm() {
             <Separator className="flex-1" />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-1.5">
               <Label htmlFor="full_name" className="text-sm font-medium text-neutral-700">Họ và tên</Label>
               <div className="relative">
