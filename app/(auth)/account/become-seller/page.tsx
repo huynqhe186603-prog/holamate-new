@@ -48,7 +48,7 @@ export default function BecomeSellerPage() {
         setForm(f => ({
           ...f,
           display_name: profile.full_name ?? '',
-          phone: profile.phone ?? '',
+          phone: (profile as any).phone ?? '',
         }))
       }
 
@@ -73,7 +73,7 @@ export default function BecomeSellerPage() {
       user_id: user.id,
       display_name: form.display_name.trim(),
       phone: form.phone.trim(),
-      seller_type: form.seller_type,
+      seller_type: form.seller_type as 'fixed_shop_owner' | 'student_seller' | 'both',
       bio: form.bio.trim() || null,
       status: 'pending',
     })
