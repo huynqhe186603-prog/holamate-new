@@ -48,11 +48,7 @@ export default function BecomeSellerPage() {
         setForm(f => ({
           ...f,
           display_name: profile.full_name ?? '',
-<<<<<<< HEAD
           phone: (profile as any).phone ?? '',
-=======
-          phone: profile.phone ?? '',
->>>>>>> 7aa0f55 (feat: tích hợp VietMap GL JS thay thế Google Maps)
         }))
       }
 
