@@ -3,9 +3,6 @@
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/client'
@@ -14,55 +11,50 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
-const loginSchema = z.object({
-  email: z.string().min(1, 'Nhập email'),
-  password: z.string().min(1, 'Nhập mật khẩu'),
-})
-type LoginData = z.infer<typeof loginSchema>
-
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') ?? '/'
   const urlError = searchParams.get('error')
 
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-  const [serverError, setServerError] = useState<string | null>(
+  const [error, setError] = useState<string | null>(
     urlError === 'auth_callback_failed' ? 'Đăng nhập thất bại. Vui lòng thử lại.' : null
   )
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginData>({ resolver: zodResolver(loginSchema) })
-
   const supabase = createClient()
 
-  async function onSubmit(data: LoginData) {
-    setServerError(null)
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    })
-    if (error) {
-      setServerError('Email hoặc mật khẩu không đúng.')
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email || !password) {
+      setError('Vui lòng nhập email và mật khẩu.')
       return
     }
-    router.push(redirect)
-    router.refresh()
+    setLoading(true)
+    setError(null)
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    if (authError) {
+      setError('Email hoặc mật khẩu không đúng.')
+    } else {
+      router.push(redirect)
+      router.refresh()
+    }
+    setLoading(false)
   }
 
   async function signInWithGoogle() {
     setGoogleLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
       },
     })
-    if (error) {
-      setServerError('Không thể đăng nhập với Google.')
+    if (oauthError) {
+      setError('Không thể đăng nhập với Google.')
       setGoogleLoading(false)
     }
   }
@@ -70,26 +62,22 @@ function LoginForm() {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm animate-fade-in">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 group">
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
               <span className="text-primary-foreground font-bold text-base leading-none">H</span>
             </div>
-            <span className="text-xl font-semibold tracking-tight text-neutral-900">
-              HolaMate
-            </span>
+            <span className="text-xl font-semibold tracking-tight text-neutral-900">HolaMate</span>
           </Link>
           <h1 className="mt-6 text-2xl font-semibold text-neutral-900">Chào mừng trở lại</h1>
           <p className="mt-1.5 text-sm text-neutral-500">Đăng nhập để khám phá ẩm thực Hòa Lạc</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6 space-y-5">
-          {serverError && (
+          {error && (
             <div className="flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-200 px-3.5 py-3 text-sm text-red-700">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>{serverError}</span>
+              <span>{error}</span>
             </div>
           )}
 
@@ -98,7 +86,7 @@ function LoginForm() {
             variant="outline"
             className="w-full h-11 gap-2.5 font-medium"
             onClick={signInWithGoogle}
-            disabled={googleLoading || isSubmitting}
+            disabled={googleLoading || loading}
           >
             {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
             Tiếp tục với Google
@@ -110,29 +98,41 @@ function LoginForm() {
             <Separator className="flex-1" />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium text-neutral-700">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input id="email" type="text" autoComplete="email" placeholder="you@example.com" className="pl-9 h-11" {...register('email')} />
+                <Input
+                  id="email"
+                  type="text"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  className="pl-9 h-11"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-medium text-neutral-700">Mật khẩu</Label>
-              </div>
+              <Label htmlFor="password" className="text-sm font-medium text-neutral-700">Mật khẩu</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" className="pl-9 h-11" {...register('password')} />
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className="pl-9 h-11"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
-              {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
             </div>
 
-            <Button type="submit" className="w-full h-11 font-medium" disabled={isSubmitting || googleLoading}>
-              {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Đang đăng nhập…</> : 'Đăng nhập'}
+            <Button type="submit" className="w-full h-11 font-medium" disabled={loading || googleLoading}>
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Đang đăng nhập…</> : 'Đăng nhập'}
             </Button>
           </form>
         </div>
