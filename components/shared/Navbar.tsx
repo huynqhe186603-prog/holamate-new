@@ -4,6 +4,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { LogoutButton } from '@/components/shared/LogoutButton'
 import { cn } from '@/lib/utils'
 import { Utensils, MessageSquare, Sparkles, Store, ShoppingBag } from 'lucide-react'
+import { NotificationBell } from '@/components/shared/NotificationBell'
 
 const NAV_LINKS = [
   { href: '/explore', label: 'Khám phá', icon: Utensils },
@@ -76,6 +77,8 @@ export async function Navbar() {
         <div className="flex items-center gap-2">
           {user && profile ? (
             <>
+              <NotificationBell userId={user.id} />
+
               <Link
                 href="/account/orders"
                 className="p-2 rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
