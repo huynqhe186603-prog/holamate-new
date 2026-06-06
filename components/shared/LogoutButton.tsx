@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut } from 'lucide-react'
+import { LogOut, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 export function LogoutButton() {
   const router = useRouter()
@@ -19,13 +18,13 @@ export function LogoutButton() {
   }
 
   return (
-    <DropdownMenuItem
+    <button
       onClick={handleLogout}
       disabled={loading}
-      className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer gap-2"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
     >
-      <LogOut className="w-4 h-4" />
-      {loading ? 'Đang đăng xuất…' : 'Đăng xuất'}
-    </DropdownMenuItem>
+      {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LogOut className="w-3.5 h-3.5" />}
+      {loading ? 'Đang xuất…' : 'Đăng xuất'}
+    </button>
   )
 }

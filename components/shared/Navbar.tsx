@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
+import { LogoutButton } from '@/components/shared/LogoutButton'
 import { cn } from '@/lib/utils'
 import { Utensils, MessageSquare, Sparkles, Store, ShoppingBag } from 'lucide-react'
 
@@ -84,6 +85,8 @@ export async function Navbar() {
                   {initials}
                 </span>
               </Link>
+
+              <LogoutButton />
             </>
           ) : (
             <div className="flex items-center gap-2">
