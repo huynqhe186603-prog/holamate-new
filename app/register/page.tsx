@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -104,8 +105,8 @@ function RegisterForm() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-base leading-none">H</span>
+            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm">
+              <Image src="/logo.jpg" alt="HolaMate" width={36} height={36} className="object-cover w-full h-full" />
             </div>
             <span className="text-xl font-semibold tracking-tight text-neutral-900">HolaMate</span>
           </Link>

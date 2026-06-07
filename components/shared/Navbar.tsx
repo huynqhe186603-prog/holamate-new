@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
 import { LogoutButton } from '@/components/shared/LogoutButton'
@@ -44,8 +45,8 @@ export async function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <span className="text-white font-bold text-xs leading-none">H</span>
+          <div className="w-7 h-7 rounded-lg overflow-hidden shadow-sm group-hover:scale-105 transition-transform shrink-0">
+            <Image src="/logo.jpg" alt="HolaMate" width={28} height={28} className="object-cover w-full h-full" />
           </div>
           <span className="font-semibold text-neutral-900 tracking-tight text-[15px]">
             HolaMate
