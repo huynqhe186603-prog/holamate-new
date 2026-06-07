@@ -12,7 +12,7 @@ export function LogoBrand({
     <Link href="/" className="flex items-center gap-2 group">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <Image
-          src="/logo.jpg"
+          src="/logo-icon.png"
           alt="HolaMate"
           fill
           className="object-contain"
