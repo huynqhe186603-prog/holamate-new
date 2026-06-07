@@ -16,7 +16,7 @@ export default async function HomePage() {
       <main className="min-h-screen bg-white">
 
         {/* Hero */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden min-h-screen flex flex-col">
           {/* Background image */}
           <Image
             src="/background.jpg"
@@ -27,10 +27,10 @@ export default async function HomePage() {
             quality={90}
           />
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/55" />
 
           {/* Content */}
-          <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
+          <div className="relative z-10 flex-1 flex flex-col items-center justify-center mx-auto w-full max-w-6xl px-4 sm:px-6 py-16 text-center">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/30 px-3.5 py-1 text-xs font-medium text-white mb-6 animate-fade-in">
               <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
               Dành riêng cho sinh viên Hòa Lạc
