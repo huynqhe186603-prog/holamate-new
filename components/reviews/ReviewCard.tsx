@@ -10,6 +10,7 @@ import {
   formatRelativeTime,
   type ReviewWithRelations,
 } from '@/lib/utils/reviews'
+import { ReviewImageGallery } from '@/components/reviews/ReviewImageGallery'
 
 interface ReviewCardProps {
   review: ReviewWithRelations
@@ -98,24 +99,7 @@ export function ReviewCard({
 
       {/* Media */}
       {visibleMedia.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
-          {visibleMedia.slice(0, 4).map(media => (
-            <div key={media.id} className="relative w-20 h-20 rounded-xl overflow-hidden bg-neutral-100 shrink-0">
-              <Image
-                src={media.image_url}
-                alt="Ảnh review"
-                fill
-                className="object-cover"
-                sizes="80px"
-              />
-            </div>
-          ))}
-          {visibleMedia.length > 4 && (
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-neutral-100 flex items-center justify-center shrink-0">
-              <span className="text-sm font-semibold text-neutral-500">+{visibleMedia.length - 4}</span>
-            </div>
-          )}
-        </div>
+        <ReviewImageGallery images={visibleMedia} />
       )}
 
       {/* Actions */}
