@@ -21,32 +21,36 @@ export function StarPicker({ value, onChange, size = 'lg', readOnly = false, cla
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div
-        className="flex items-center gap-1"
-        onMouseLeave={() => !readOnly && setHovered(0)}
-      >
-        {[1, 2, 3, 4, 5].map(n => (
-          <button
-            key={n}
-            type="button"
-            disabled={readOnly}
-            onClick={() => { if (!readOnly) { onChange(n); setHovered(0) } }}
-            onMouseEnter={() => !readOnly && setHovered(n)}
-            className={cn('transition-transform', !readOnly && 'hover:scale-110 active:scale-95')}
-          >
-            <Star
-              className={cn(
-                starSize,
-                'transition-colors',
-                n <= active
-                  ? 'fill-amber-400 text-amber-400'
-                  : 'fill-neutral-200 text-neutral-200'
-              )}
-            />
-          </button>
-        ))}
-        {!readOnly && active > 0 && (
-          <span className="ml-2 text-sm font-medium text-neutral-600">{LABELS[active]}</span>
+      <div className="flex items-center">
+        <div
+          className="flex items-center gap-1"
+          onMouseLeave={() => !readOnly && setHovered(0)}
+        >
+          {[1, 2, 3, 4, 5].map(n => (
+            <button
+              key={n}
+              type="button"
+              disabled={readOnly}
+              onClick={() => { if (!readOnly) { onChange(n); setHovered(0) } }}
+              onMouseEnter={() => !readOnly && setHovered(n)}
+              className={cn('transition-transform', !readOnly && 'hover:scale-110 active:scale-95')}
+            >
+              <Star
+                className={cn(
+                  starSize,
+                  'transition-colors',
+                  n <= active
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'fill-neutral-200 text-neutral-200'
+                )}
+              />
+            </button>
+          ))}
+        </div>
+        {!readOnly && (
+          <span className="ml-2 text-sm font-medium text-neutral-600 min-w-[80px]">
+            {active > 0 ? LABELS[active] : ''}
+          </span>
         )}
       </div>
     </div>
