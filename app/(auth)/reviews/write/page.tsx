@@ -44,7 +44,9 @@ function WriteReviewForm() {
   const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const totalSteps = reviewType === 'menu_item' ? 5 : 4
+  const totalSteps = 5
+  const displayTotal = reviewType === 'menu_item' ? 5 : 4
+  const displayStep = reviewType !== 'menu_item' && step > 2 ? step - 1 : step
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -195,7 +197,7 @@ function WriteReviewForm() {
 
   // ─── Progress bar ─────────────────────────────────────────────────────────
 
-  const progress = ((step - 1) / (totalSteps - 1)) * 100
+  const progress = displayTotal > 1 ? ((displayStep - 1) / (displayTotal - 1)) * 100 : 0
 
   return (
     <div className="max-w-lg mx-auto px-4 py-8">
@@ -209,7 +211,7 @@ function WriteReviewForm() {
         </button>
         <div className="flex-1">
           <h1 className="text-lg font-bold text-neutral-900">Viết review</h1>
-          <p className="text-xs text-neutral-400">Bước {step}/{totalSteps}: {
+          <p className="text-xs text-neutral-400">Bước {displayStep}/{displayTotal}: {
             step === 1 ? 'Loại review' :
             step === 2 ? 'Chọn quán/gian hàng' :
             step === 3 ? 'Chọn món' :

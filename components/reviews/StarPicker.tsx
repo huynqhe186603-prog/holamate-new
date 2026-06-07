@@ -21,15 +21,17 @@ export function StarPicker({ value, onChange, size = 'lg', readOnly = false, cla
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="flex items-center gap-1">
+      <div
+        className="flex items-center gap-1"
+        onMouseLeave={() => !readOnly && setHovered(0)}
+      >
         {[1, 2, 3, 4, 5].map(n => (
           <button
             key={n}
             type="button"
             disabled={readOnly}
-            onClick={() => !readOnly && onChange(n)}
+            onClick={() => { if (!readOnly) { onChange(n); setHovered(0) } }}
             onMouseEnter={() => !readOnly && setHovered(n)}
-            onMouseLeave={() => !readOnly && setHovered(0)}
             className={cn('transition-transform', !readOnly && 'hover:scale-110 active:scale-95')}
           >
             <Star
