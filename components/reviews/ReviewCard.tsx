@@ -74,7 +74,7 @@ export function ReviewCard({
           {showSubject && vendorHref && (
             <Link
               href={vendorHref}
-              className="flex items-center gap-1 mt-0.5 text-xs text-neutral-500 hover:text-primary transition-colors"
+              className="flex items-center gap-1 mt-0.5 text-xs text-neutral-500 hover:text-primary hover:underline transition-colors"
             >
               {review.review_type === 'menu_item' ? (
                 <UtensilsCrossed className="w-3 h-3 shrink-0" />

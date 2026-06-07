@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, useTransition, useCallback } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Clock, Store, UtensilsCrossed, Search, ArrowLeft, Loader2 } from 'lucide-react'
+import { Clock, Store, UtensilsCrossed, Search, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { REVIEWS_SELECT, type ReviewWithRelations } from '@/lib/utils/reviews'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
@@ -41,7 +42,7 @@ type RawItemReview = {
 
 type GroupedVendor = { id: string; name: string; vendor_type: string; img: string | null; count: number; avgRating: number }
 type GroupedItem   = { id: string; name: string; img: string | null; vendorId: string | null; vendorName: string | null; vendorType: string | null; count: number; avgRating: number }
-type SelectedEntity = { id: string; name: string; type: 'vendor' | 'item' }
+type SelectedEntity = { id: string; name: string; type: 'vendor' | 'item'; pageHref: string | null }
 
 export function ReviewTabs({ activeTab }: { activeTab: string }) {
   const router = useRouter()
@@ -209,7 +210,18 @@ export function ReviewTabs({ activeTab }: { activeTab: string }) {
                 Tất cả {activeTab === 'vendor' ? 'quán' : 'món'}
               </button>
 
-              <h2 className="font-semibold text-neutral-900 mb-4">{selectedEntity.name}</h2>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h2 className="font-semibold text-neutral-900 truncate">{selectedEntity.name}</h2>
+                {selectedEntity.pageHref && (
+                  <Link
+                    href={selectedEntity.pageHref}
+                    className="flex items-center gap-1 text-sm text-primary hover:underline shrink-0 transition-colors"
+                  >
+                    {selectedEntity.type === 'vendor' ? 'Xem trang quán' : 'Xem trang quán'}
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                )}
+              </div>
 
               {selectedLoading ? (
                 <div className="flex justify-center py-12">
@@ -313,6 +325,11 @@ export function ReviewTabs({ activeTab }: { activeTab: string }) {
                           id: row.id,
                           name: row.name,
                           type: isVendorTab ? 'vendor' : 'item',
+                          pageHref: isVendorTab
+                            ? vRow.vendor_type === 'student_booth' ? `/explore/booths/${vRow.id}` : `/explore/vendors/${vRow.id}`
+                            : iRow.vendorId
+                              ? iRow.vendorType === 'student_booth' ? `/explore/booths/${iRow.vendorId}` : `/explore/vendors/${iRow.vendorId}`
+                              : null,
                         })}
                         className="w-full flex items-center gap-3 p-3 rounded-2xl border border-neutral-100 hover:border-primary/30 hover:bg-primary/5 transition-colors text-left"
                       >
