@@ -9,8 +9,9 @@ import { CartMenuSection } from '@/components/cart/CartMenuSection'
 import { CartButton } from '@/components/cart/CartButton'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { isVendorOpen, formatOpeningHoursFull } from '@/lib/utils/explore'
+import { isVendorOpen } from '@/lib/utils/explore'
 import { VietMapEmbed } from '@/components/shared/VietMapEmbed'
+import { CopyButton } from '@/components/shared/CopyButton'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, UtensilsCrossed,
 } from 'lucide-react'
@@ -66,7 +67,6 @@ export default async function VendorDetailPage({ params }: Props) {
   // Type casts
   const openingHours = vendor.opening_hours as Record<string, string> | null
   const isOpen = isVendorOpen(openingHours)
-  const hoursLines = formatOpeningHoursFull(openingHours)
   const allReviews = (vendor.reviews ?? []).filter((r: any) => r.status === 'visible')
   const ratingAvg = allReviews.length
     ? Math.round(allReviews.reduce((s: number, r: any) => s + r.rating, 0) / allReviews.length * 10) / 10
@@ -157,7 +157,8 @@ export default async function VendorDetailPage({ params }: Props) {
           {/* Address */}
           {(vendor.address || vendor.area) && (
             <InfoRow icon={<MapPin className="w-4 h-4" />} label="Địa chỉ">
-              {vendor.address ?? vendor.area}
+              <span>{vendor.address ?? vendor.area}</span>
+              <CopyButton text={vendor.address ?? vendor.area ?? ''} />
             </InfoRow>
           )}
           {/* Phone */}
@@ -174,15 +175,13 @@ export default async function VendorDetailPage({ params }: Props) {
               {vendor.delivery_note}
             </InfoRow>
           )}
-          {/* Hours */}
-          {hoursLines.length > 0 && (
-            <InfoRow icon={<Clock className="w-4 h-4" />} label="Giờ mở cửa">
-              <div className="space-y-0.5">
-                {hoursLines.map(line => (
-                  <div key={line} className="text-sm text-neutral-600">{line}</div>
-                ))}
-              </div>
-            </InfoRow>
+          {/* Opening hours table */}
+          {openingHours && (
+            <div className="col-span-full">
+              <InfoRow icon={<Clock className="w-4 h-4" />} label="Giờ mở cửa">
+                <OpeningHoursTable openingHours={openingHours} />
+              </InfoRow>
+            </div>
           )}
         </div>
 
@@ -268,6 +267,46 @@ function InfoRow({
         <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">{label}</p>
         <div className="text-sm text-neutral-700">{children}</div>
       </div>
+    </div>
+  )
+}
+
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+const DAY_LABELS: Record<string, string> = {
+  sun: 'Chủ nhật', mon: 'Thứ 2', tue: 'Thứ 3',
+  wed: 'Thứ 4', thu: 'Thứ 5', fri: 'Thứ 6', sat: 'Thứ 7',
+}
+
+function OpeningHoursTable({ openingHours }: { openingHours: Record<string, string> }) {
+  const todayKey = DAY_KEYS[new Date().getDay()]
+  return (
+    <div className="space-y-0.5 mt-0.5">
+      {DAY_KEYS.map(key => {
+        const h = openingHours[key]
+        const isToday = key === todayKey
+        const isClosed = !h || h === 'closed'
+        return (
+          <div
+            key={key}
+            className={cn(
+              'flex items-center gap-3 text-sm rounded-md px-1.5 py-0.5',
+              isToday ? 'bg-primary/5 font-semibold' : ''
+            )}
+          >
+            <span className={cn('w-20 shrink-0', isToday ? 'text-primary' : 'text-neutral-500')}>
+              {DAY_LABELS[key]}
+            </span>
+            <span className={cn(isClosed ? 'text-neutral-300' : isToday ? 'text-neutral-900' : 'text-neutral-600')}>
+              {isClosed ? 'Đóng cửa' : h}
+            </span>
+            {isToday && (
+              <span className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                Hôm nay
+              </span>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

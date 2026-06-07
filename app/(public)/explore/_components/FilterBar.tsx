@@ -21,6 +21,8 @@ export function FilterBar() {
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
+  const type = searchParams.get('type') ?? 'fixed_shop'
+  const isBoothMode = type === 'student_booth'
   const category = searchParams.get('category') ?? ''
   const maxPriceParam = Number(searchParams.get('max_price') ?? SLIDER_MAX)
   const openNow = searchParams.get('open_now') === 'true'
@@ -55,7 +57,7 @@ export function FilterBar() {
   const activeCount = [
     category ? 1 : 0,
     maxPriceParam < SLIDER_MAX ? 1 : 0,
-    openNow ? 1 : 0,
+    !isBoothMode && openNow ? 1 : 0,
     hasDelivery ? 1 : 0,
   ].reduce((a, b) => a + b, 0)
 
@@ -156,12 +158,14 @@ export function FilterBar() {
 
       {/* Toggles */}
       <div className="flex items-center gap-2">
-        <Toggle
-          label="Đang mở"
-          active={openNow}
-          onClick={() => toggleBool('open_now', openNow)}
-          color="emerald"
-        />
+        {!isBoothMode && (
+          <Toggle
+            label="Đang mở"
+            active={openNow}
+            onClick={() => toggleBool('open_now', openNow)}
+            color="emerald"
+          />
+        )}
         <Toggle
           label="Có ship"
           active={hasDelivery}
