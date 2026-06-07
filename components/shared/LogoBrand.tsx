@@ -9,7 +9,7 @@ export function LogoBrand({
   showText?: boolean
 }) {
   return (
-    <Link href="/" className="flex items-center gap-2 group">
+    <Link href="/" className="flex items-center gap-1 group">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <Image
           src="/logo-icon.png"
