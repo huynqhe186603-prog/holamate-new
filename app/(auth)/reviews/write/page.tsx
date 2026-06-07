@@ -64,15 +64,13 @@ function WriteReviewForm() {
   }, [supabase])
 
   const fetchMenuItems = useCallback(async (vendorId: string) => {
-    const today = new Date().toISOString().split('T')[0]
     const { data } = await supabase
       .from('menu_items')
       .select('id, name, price, item_type')
       .eq('vendor_id', vendorId)
       .eq('is_available', true)
-      .or(`selling_date.is.null,selling_date.eq.${today}`)
       .order('sort_order')
-      .limit(30)
+      .limit(100)
     setMenuItems((data ?? []) as MenuItemResult[])
   }, [supabase])
 
