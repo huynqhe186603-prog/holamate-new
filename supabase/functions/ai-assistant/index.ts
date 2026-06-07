@@ -16,10 +16,20 @@ Phân tích yêu cầu người dùng và trả về JSON:
     "max_price": <số nguyên VND hoặc null>,
     "has_ship": true | false | null,
     "is_open_now": true | false | null,
+    "min_rating": <số thực hoặc null>,
+    "max_rating": <số thực hoặc null>,
     "keywords": [<từ khóa tên quán hoặc khu vực, mảng string, tối đa 2 phần tử>]
   },
   "explanation": "<1-2 câu ngắn, thân thiện, bằng tiếng Việt, giải thích mình sẽ tìm gì>"
 }
+Quy tắc parse rating (thang 1-5 sao):
+- "3 sao" → min_rating: 2.5, max_rating: 3.5
+- "4 sao" → min_rating: 3.5, max_rating: 4.5
+- "5 sao" → min_rating: 4.5, max_rating: null
+- "trên 4 sao" hoặc "từ 4 sao" hoặc "4 sao trở lên" → min_rating: 4, max_rating: null
+- "dưới 3 sao" → min_rating: null, max_rating: 3
+- "tốt", "ngon", "chất lượng" → min_rating: 4, max_rating: null
+- Không đề cập rating → min_rating: null, max_rating: null
 Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc null. Chỉ trả về JSON thuần túy, không markdown.`
 
 function isVendorOpen(openingHours: Record<string, string> | null): boolean {
@@ -93,6 +103,8 @@ Deno.serve(async (req) => {
       max_price: null as number | null,
       has_ship: null as boolean | null,
       is_open_now: null as boolean | null,
+      min_rating: null as number | null,
+      max_rating: null as number | null,
       keywords: [] as string[],
     }
     let explanation = 'Đây là các quán ăn mình tìm được cho bạn!'
@@ -148,6 +160,14 @@ Deno.serve(async (req) => {
     if (filters.is_open_now === true) {
       // deno-lint-ignore no-explicit-any
       vendors = vendors.filter((v: any) => v.is_open)
+    }
+    if (filters.min_rating !== null) {
+      // deno-lint-ignore no-explicit-any
+      vendors = vendors.filter((v: any) => v.rating_avg !== null && v.rating_avg >= filters.min_rating!)
+    }
+    if (filters.max_rating !== null) {
+      // deno-lint-ignore no-explicit-any
+      vendors = vendors.filter((v: any) => v.rating_avg !== null && v.rating_avg <= filters.max_rating!)
     }
 
     void supabase.from('ai_search_logs').insert({
