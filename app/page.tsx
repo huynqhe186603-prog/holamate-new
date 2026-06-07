@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/shared/Navbar'
 import { buttonVariants } from '@/components/ui/button'
@@ -15,47 +16,59 @@ export default async function HomePage() {
       <main className="min-h-screen bg-white">
 
         {/* Hero */}
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-brand-light border border-amber-200 px-3.5 py-1 text-xs font-medium text-amber-700 mb-6 animate-fade-in">
-            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-            Dành riêng cho sinh viên Hòa Lạc
-          </div>
+        <section className="relative overflow-hidden">
+          {/* Background image */}
+          <Image
+            src="/background.jpg"
+            alt="Background"
+            fill
+            className="object-cover object-center"
+            priority
+            quality={90}
+          />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/50" />
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 leading-[1.1] animate-fade-in">
-            Ăn ngon,{' '}
-            <span className="text-primary">đúng ngân sách</span>
-            <br />
-            tại Hòa Lạc
-          </h1>
+          {/* Content */}
+          <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/30 px-3.5 py-1 text-xs font-medium text-white mb-6 animate-fade-in">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              Dành riêng cho sinh viên Hòa Lạc
+            </div>
 
-          <p className="mt-5 text-base sm:text-lg text-neutral-500 max-w-xl mx-auto leading-relaxed animate-fade-in">
-            Khám phá quán ăn, gian hàng sinh viên và đọc review thật từ cộng đồng.
-            Tìm món phù hợp với trợ lý AI trong vài giây.
-          </p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1] animate-fade-in">
+              Ăn ngon,{' '}
+              <span className="text-amber-400">đúng ngân sách</span>
+              <br />
+              tại Hòa Lạc
+            </h1>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center animate-fade-in">
-            <Link
-              href="/explore"
-              className={cn(
-                buttonVariants({ size: 'lg' }),
-                'h-12 px-6 text-base font-medium gap-2'
-              )}
-            >
-              <Utensils className="w-4 h-4" />
-              Khám phá ẩm thực
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            {!user && (
+            <p className="mt-5 text-base sm:text-lg text-white/80 max-w-xl mx-auto leading-relaxed animate-fade-in">
+              Khám phá quán ăn, gian hàng sinh viên và đọc review thật từ cộng đồng.
+              Tìm món phù hợp với trợ lý AI trong vài giây.
+            </p>
+
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center animate-fade-in">
               <Link
-                href="/register"
+                href="/explore"
                 className={cn(
-                  buttonVariants({ variant: 'outline', size: 'lg' }),
-                  'h-12 px-6 text-base'
+                  buttonVariants({ size: 'lg' }),
+                  'h-12 px-6 text-base font-medium gap-2'
                 )}
               >
-                Đăng ký miễn phí
+                <Utensils className="w-4 h-4" />
+                Khám phá ẩm thực
+                <ArrowRight className="w-4 h-4" />
               </Link>
-            )}
+              {!user && (
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center h-12 px-6 text-base rounded-lg border border-white/60 text-white hover:bg-white/10 transition-colors"
+                >
+                  Đăng ký miễn phí
+                </Link>
+              )}
+            </div>
           </div>
         </section>
 
