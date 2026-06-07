@@ -20,7 +20,7 @@ export function TabSwitcher({ activeType }: { activeType: string }) {
   const switchTab = (type: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('type', type)
-    ;['category', 'open_now', 'has_delivery', 'max_price', 'page'].forEach(k => params.delete(k))
+    ;['category', 'open_now', 'has_delivery', 'max_price', 'q', 'page'].forEach(k => params.delete(k))
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: false })
     })

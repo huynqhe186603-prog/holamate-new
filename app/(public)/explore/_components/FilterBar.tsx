@@ -63,7 +63,7 @@ export function FilterBar() {
 
   const clearAll = () => {
     const params = new URLSearchParams(searchParams.toString())
-    ;['category', 'max_price', 'open_now', 'has_delivery', 'page'].forEach(k => params.delete(k))
+    ;['category', 'max_price', 'open_now', 'has_delivery', 'q', 'page'].forEach(k => params.delete(k))
     setSliderValue(SLIDER_MAX)
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: false })

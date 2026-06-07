@@ -4,8 +4,10 @@ import { VendorCard, OnlineSellerCard, BoothCard } from '@/components/explore/Ve
 import { VendorGridSkeleton } from '@/components/explore/VendorCardSkeleton'
 import { FilterBar } from './_components/FilterBar'
 import { TabSwitcher } from './_components/TabSwitcher'
+import { SearchBar } from './_components/SearchBar'
 import { computeRating, isVendorOpen, CATEGORY_DB_MAP, CATEGORY_TEXT_SEARCH } from '@/lib/utils/explore'
 import type { VendorWithRating } from '@/lib/utils/explore'
+import { SearchX } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -20,6 +22,7 @@ interface ExplorePageProps {
     max_price?: string
     open_now?: string
     has_delivery?: string
+    q?: string
     page?: string
   }
 }
@@ -35,6 +38,8 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
   const openNow = searchParams.open_now === 'true'
   const hasDelivery = searchParams.has_delivery === 'true'
   const category = searchParams.category ?? null
+  // Sanitize: strip characters that could break PostgREST filter syntax
+  const q = (searchParams.q ?? '').replace(/[,().%]/g, '').trim()
 
   let query = supabase
     .from('vendors')
@@ -49,6 +54,7 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
     .order('created_at', { ascending: false })
     .limit(30)
 
+  if (q) query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
   if (hasDelivery) query = query.eq('has_delivery', true)
   if (maxPrice) query = query.lte('price_range_min', maxPrice)
   if (category) {
@@ -61,7 +67,6 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
         if (text) query = query.or(`name.ilike.%${text}%,description.ilike.%${text}%`)
       }
     } else {
-      // Legacy category key (direct DB value)
       query = query.contains('food_categories', [category])
     }
   }
@@ -76,7 +81,6 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
     )
   }
 
-  // Compute rating + open status
   let vendors: VendorWithRating[] = raw.map((v: any) => {
     const { avg, count } = computeRating(v.reviews ?? [])
     return {
@@ -89,10 +93,27 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
     }
   })
 
-  // Client-side open_now filter (server doesn't know client timezone easily)
   if (openNow) vendors = vendors.filter(v => v.is_open)
 
   if (vendors.length === 0) {
+    const keyword = searchParams.q?.trim()
+    if (keyword) {
+      return (
+        <div className="py-20 text-center space-y-3">
+          <SearchX className="w-10 h-10 text-neutral-300 mx-auto" />
+          <p className="font-medium text-neutral-700">
+            Không tìm thấy &ldquo;{keyword}&rdquo;
+          </p>
+          <p className="text-sm text-neutral-400">Thử tìm với từ khóa khác</p>
+          <a
+            href={`/explore?type=${searchParams.type ?? 'fixed_shop'}`}
+            className="inline-flex items-center gap-1.5 mt-2 px-4 py-1.5 rounded-full border border-neutral-200 text-sm text-neutral-600 hover:border-neutral-400 transition-colors"
+          >
+            Xóa tìm kiếm
+          </a>
+        </div>
+      )
+    }
     return (
       <div className="py-20 text-center space-y-3">
         <div className="text-5xl">🍽️</div>
@@ -109,10 +130,12 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
       : BoothCard
   const hrefPrefix = type === 'fixed_shop' ? '/explore/vendors' : '/explore/booths'
 
+  const hasFilter = !!(q || category || maxPrice || openNow || hasDelivery)
+
   return (
     <>
       <p className="text-sm text-neutral-500 mb-4">
-        {vendors.length} kết quả{category || maxPrice || openNow || hasDelivery ? ' (đã lọc)' : ''}
+        {vendors.length} kết quả{hasFilter ? ' (đã lọc)' : ''}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {vendors.map(v => (
@@ -145,8 +168,15 @@ export default function ExplorePage({ searchParams }: ExplorePageProps) {
         <TabSwitcher activeType={type} />
       </Suspense>
 
+      {/* Search bar */}
+      <div className="mt-4">
+        <Suspense>
+          <SearchBar />
+        </Suspense>
+      </div>
+
       {/* Filters */}
-      <div className="mt-5 mb-6">
+      <div className="mt-4 mb-6">
         <Suspense>
           <FilterBar />
         </Suspense>
