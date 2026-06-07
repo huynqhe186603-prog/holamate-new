@@ -20,7 +20,7 @@ export function LogoBrand({
         />
       </div>
       {showText && (
-        <span className="text-xl font-bold tracking-tight text-neutral-900">
+        <span className="text-lg font-bold tracking-tight text-neutral-900">
           HolaMate
         </span>
       )}
