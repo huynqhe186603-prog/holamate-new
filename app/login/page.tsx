@@ -2,8 +2,8 @@
 
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { LogoBrand } from '@/components/shared/LogoBrand'
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/client'
@@ -64,12 +64,7 @@ function LoginForm() {
     <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm animate-fade-in">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm">
-              <Image src="/logo.jpg" alt="HolaMate" width={36} height={36} className="object-cover w-full h-full" />
-            </div>
-            <span className="text-xl font-semibold tracking-tight text-neutral-900">HolaMate</span>
-          </Link>
+          <LogoBrand />
           <h1 className="mt-6 text-2xl font-semibold text-neutral-900">Chào mừng trở lại</h1>
           <p className="mt-1.5 text-sm text-neutral-500">Đăng nhập để khám phá ẩm thực Hòa Lạc</p>
         </div>

@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
 import { LogoutButton } from '@/components/shared/LogoutButton'
+import { LogoBrand } from '@/components/shared/LogoBrand'
 import { cn } from '@/lib/utils'
 import { Utensils, MessageSquare, Sparkles, Store, ShoppingBag } from 'lucide-react'
 import { NotificationBell } from '@/components/shared/NotificationBell'
@@ -44,14 +44,7 @@ export async function Navbar() {
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0 group">
-          <div className="w-7 h-7 rounded-lg overflow-hidden shadow-sm group-hover:scale-105 transition-transform shrink-0">
-            <Image src="/logo.jpg" alt="HolaMate" width={28} height={28} className="object-cover w-full h-full" />
-          </div>
-          <span className="font-semibold text-neutral-900 tracking-tight text-[15px]">
-            HolaMate
-          </span>
-        </Link>
+        <LogoBrand size={28} />
 
         {/* Desktop nav links */}
         <div className="hidden sm:flex items-center gap-1">
