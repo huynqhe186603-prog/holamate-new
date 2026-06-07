@@ -15,7 +15,7 @@ export function LogoBrand({
           src="/logo-icon.png"
           alt="HolaMate"
           fill
-          className="object-contain"
+          className="object-contain object-left"
           priority
         />
       </div>
