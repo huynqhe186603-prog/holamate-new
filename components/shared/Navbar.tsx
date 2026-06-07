@@ -44,7 +44,7 @@ export async function Navbar() {
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
 
         {/* Logo */}
-        <LogoBrand size={40} />
+        <LogoBrand size={80} />
 
         {/* Desktop nav links */}
         <div className="hidden sm:flex items-center gap-1">
