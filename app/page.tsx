@@ -2,9 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/shared/Navbar'
-import { buttonVariants } from '@/components/ui/button'
-import { Utensils, MessageSquare, Sparkles, ArrowRight, Star } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Utensils, MessageSquare, Sparkles, ArrowRight, Star, ChevronDown } from 'lucide-react'
 
 export default async function HomePage() {
   const supabase = createClient()
@@ -16,7 +14,7 @@ export default async function HomePage() {
       <main className="min-h-screen bg-white">
 
         {/* Hero */}
-        <section className="relative overflow-hidden min-h-screen flex flex-col">
+        <section className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center">
           {/* Background image */}
           <Image
             src="/background.jpg"
@@ -26,49 +24,56 @@ export default async function HomePage() {
             priority
             quality={90}
           />
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/55" />
+          {/* Gradient overlay — đậm trên/dưới, nhạt giữa */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
 
           {/* Content */}
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-center mx-auto w-full max-w-6xl px-4 sm:px-6 py-16 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/30 px-3.5 py-1 text-xs font-medium text-white mb-6 animate-fade-in">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+          <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 py-20 text-center flex flex-col items-center gap-6">
+
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-1.5 text-sm font-medium text-white">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               Dành riêng cho sinh viên Hòa Lạc
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1] animate-fade-in">
+            {/* Heading */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
               Ăn ngon,{' '}
               <span className="text-amber-400">đúng ngân sách</span>
               <br />
               tại Hòa Lạc
             </h1>
 
-            <p className="mt-5 text-base sm:text-lg text-white/80 max-w-xl mx-auto leading-relaxed animate-fade-in">
+            {/* Subtext */}
+            <p className="text-lg text-white/80 max-w-xl leading-relaxed">
               Khám phá quán ăn, gian hàng sinh viên và đọc review thật từ cộng đồng.
               Tìm món phù hợp với trợ lý AI trong vài giây.
             </p>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center animate-fade-in">
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/explore"
-                className={cn(
-                  buttonVariants({ size: 'lg' }),
-                  'h-12 px-6 text-base font-medium gap-2'
-                )}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-white px-8 py-4 text-lg font-semibold hover:bg-primary/90 hover:scale-105 transition-all shadow-lg"
               >
-                <Utensils className="w-4 h-4" />
+                <Utensils className="w-5 h-5" />
                 Khám phá ẩm thực
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-5 h-5" />
               </Link>
               {!user && (
                 <Link
                   href="/register"
-                  className="inline-flex items-center justify-center h-12 px-6 text-base rounded-lg border border-white/60 text-white hover:bg-white/10 transition-colors"
+                  className="inline-flex items-center justify-center rounded-full border border-white/60 text-white px-8 py-4 text-lg font-semibold hover:bg-white/10 hover:scale-105 transition-all"
                 >
                   Đăng ký miễn phí
                 </Link>
               )}
             </div>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-white/60 animate-bounce">
+            <ChevronDown className="w-6 h-6" />
           </div>
         </section>
 
