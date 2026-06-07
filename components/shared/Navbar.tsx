@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { buttonVariants } from '@/components/ui/button'
 import { LogoutButton } from '@/components/shared/LogoutButton'
 import { LogoBrand } from '@/components/shared/LogoBrand'
+import { NavbarScrollWrapper } from '@/components/shared/NavbarScrollWrapper'
 import { cn } from '@/lib/utils'
 import { Utensils, MessageSquare, Sparkles, Store, ShoppingBag } from 'lucide-react'
 import { NotificationBell } from '@/components/shared/NotificationBell'
@@ -40,7 +41,7 @@ export async function Navbar() {
         : '/account/become-seller'
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-md">
+    <NavbarScrollWrapper>
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
 
         {/* Logo */}
@@ -52,7 +53,7 @@ export async function Navbar() {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+              className="nav-item flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
             >
               <Icon className="w-3.5 h-3.5" />
               {label}
@@ -60,7 +61,7 @@ export async function Navbar() {
           ))}
           <Link
             href={sellerHref}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+            className="nav-item flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
           >
             <Store className="w-3.5 h-3.5" />
             Người bán
@@ -75,7 +76,7 @@ export async function Navbar() {
 
               <Link
                 href="/account/orders"
-                className="p-2 rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+                className="nav-item p-2 rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
                 aria-label="Đơn hàng của tôi"
               >
                 <ShoppingBag className="w-4 h-4" />
@@ -97,7 +98,7 @@ export async function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'h-8 px-3 text-sm')}
+                className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'nav-item h-8 px-3 text-sm')}
               >
                 Đăng nhập
               </Link>
@@ -112,7 +113,7 @@ export async function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile bottom nav — always white bg */}
       <div className="sm:hidden flex items-center justify-around border-t border-neutral-100 py-2 bg-white">
         {NAV_LINKS.map(({ href, label, icon: Icon }) => (
           <Link
@@ -132,6 +133,6 @@ export async function Navbar() {
           <span className="text-[10px] font-medium">Người bán</span>
         </Link>
       </div>
-    </header>
+    </NavbarScrollWrapper>
   )
 }

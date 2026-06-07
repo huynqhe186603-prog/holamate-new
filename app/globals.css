@@ -111,3 +111,12 @@
     to { opacity: 0; }
   }
 }
+
+/* Transparent navbar — homepage hero only */
+header[data-transparent="true"] .nav-item {
+  color: rgba(255, 255, 255, 0.9);
+}
+header[data-transparent="true"] .nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
