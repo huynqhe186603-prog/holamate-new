@@ -58,24 +58,36 @@ const DAY_MAP: Record<string, string> = {
 }
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
+// Returns current time components in Vietnam timezone (UTC+7)
+// Using UTC methods avoids server-side timezone bugs on Vercel (which runs UTC+0)
+function getVietnamTime() {
+  const vnMs = Date.now() + 7 * 60 * 60 * 1000
+  const vnDate = new Date(vnMs)
+  return {
+    day: vnDate.getUTCDay(),     // 0=Sun … 6=Sat in VN time
+    hours: vnDate.getUTCHours(),
+    minutes: vnDate.getUTCMinutes(),
+  }
+}
+
 export function isVendorOpen(openingHours: Record<string, string> | null): boolean {
   if (!openingHours) return false
-  const now = new Date()
-  const dayKey = DAY_KEYS[now.getDay()]
+  const { day, hours: vnH, minutes: vnM } = getVietnamTime()
+  const dayKey = DAY_KEYS[day]
   const hours = openingHours[dayKey]
   if (!hours || hours === 'closed') return false
   const [open, close] = hours.split('-').map((t: string) => {
     const [h, m] = t.trim().split(':').map(Number)
     return h * 60 + m
   })
-  const current = now.getHours() * 60 + now.getMinutes()
+  const current = vnH * 60 + vnM
   return current >= open && current <= close
 }
 
 export function formatOpeningHours(openingHours: Record<string, string> | null): string {
   if (!openingHours) return 'Chưa cập nhật'
-  const now = new Date()
-  const dayKey = DAY_KEYS[now.getDay()]
+  const { day } = getVietnamTime()
+  const dayKey = DAY_KEYS[day]
   const todayHours = openingHours[dayKey]
   if (!todayHours || todayHours === 'closed') return 'Hôm nay đóng cửa'
   return `Hôm nay: ${todayHours}`

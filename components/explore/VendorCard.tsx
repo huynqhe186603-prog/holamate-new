@@ -10,7 +10,9 @@ const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
 function getTodayHours(openingHours: Record<string, string> | null): string | null {
   if (!openingHours) return null
-  const h = openingHours[DAY_KEYS[new Date().getDay()]]
+  // Use UTC+7 to avoid server-side timezone bug on Vercel (UTC+0)
+  const vnDay = new Date(Date.now() + 7 * 60 * 60 * 1000).getUTCDay()
+  const h = openingHours[DAY_KEYS[vnDay]]
   return h && h !== 'closed' ? h : null
 }
 

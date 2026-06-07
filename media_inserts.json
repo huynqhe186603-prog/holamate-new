@@ -1,0 +1,416 @@
+﻿[
+    {
+        "vendorId":  "ac5a8dd8-7df0-42d7-a882-00dccccf5046",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "ac5a8dd8-7df0-42d7-a882-00dccccf5046",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "ac5a8dd8-7df0-42d7-a882-00dccccf5046",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "ac5a8dd8-7df0-42d7-a882-00dccccf5046",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "ac5a8dd8-7df0-42d7-a882-00dccccf5046",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/ac5a8dd8-7df0-42d7-a882-00dccccf5046/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "aa928eb7-1c29-4365-9347-327de7832e2a",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/aa928eb7-1c29-4365-9347-327de7832e2a/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/aa928eb7-1c29-4365-9347-327de7832e2a/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "aa928eb7-1c29-4365-9347-327de7832e2a",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "aa928eb7-1c29-4365-9347-327de7832e2a",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "aa928eb7-1c29-4365-9347-327de7832e2a",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "aa928eb7-1c29-4365-9347-327de7832e2a",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/aa928eb7-1c29-4365-9347-327de7832e2a/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "acf79620-d148-480c-b76e-46d9da80382d",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/acf79620-d148-480c-b76e-46d9da80382d/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/acf79620-d148-480c-b76e-46d9da80382d/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "acf79620-d148-480c-b76e-46d9da80382d",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "acf79620-d148-480c-b76e-46d9da80382d",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "acf79620-d148-480c-b76e-46d9da80382d",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "acf79620-d148-480c-b76e-46d9da80382d",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/acf79620-d148-480c-b76e-46d9da80382d/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "788774f8-6bd5-4517-a9d0-6f7cf7760764",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/788774f8-6bd5-4517-a9d0-6f7cf7760764/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/788774f8-6bd5-4517-a9d0-6f7cf7760764/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "331505ec-b0fe-4643-84c1-c006e22b05a0",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "331505ec-b0fe-4643-84c1-c006e22b05a0",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "331505ec-b0fe-4643-84c1-c006e22b05a0",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "331505ec-b0fe-4643-84c1-c006e22b05a0",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "331505ec-b0fe-4643-84c1-c006e22b05a0",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/331505ec-b0fe-4643-84c1-c006e22b05a0/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "6e404316-ae7f-493b-9cbf-825cdecba4dd",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "6e404316-ae7f-493b-9cbf-825cdecba4dd",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "6e404316-ae7f-493b-9cbf-825cdecba4dd",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "6e404316-ae7f-493b-9cbf-825cdecba4dd",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "6e404316-ae7f-493b-9cbf-825cdecba4dd",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/6e404316-ae7f-493b-9cbf-825cdecba4dd/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "36265a63-0626-421f-a027-8ede0091e389",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/36265a63-0626-421f-a027-8ede0091e389/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/36265a63-0626-421f-a027-8ede0091e389/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "36265a63-0626-421f-a027-8ede0091e389",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "36265a63-0626-421f-a027-8ede0091e389",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "36265a63-0626-421f-a027-8ede0091e389",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "36265a63-0626-421f-a027-8ede0091e389",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/36265a63-0626-421f-a027-8ede0091e389/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "e2c8e7b4-20f7-4344-b736-7a2329d8a012",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "e2c8e7b4-20f7-4344-b736-7a2329d8a012",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "e2c8e7b4-20f7-4344-b736-7a2329d8a012",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "e2c8e7b4-20f7-4344-b736-7a2329d8a012",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "e2c8e7b4-20f7-4344-b736-7a2329d8a012",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e2c8e7b4-20f7-4344-b736-7a2329d8a012/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "e4ca39cf-373d-4c34-876a-b80c6baf609c",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "e4ca39cf-373d-4c34-876a-b80c6baf609c",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "e4ca39cf-373d-4c34-876a-b80c6baf609c",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "e4ca39cf-373d-4c34-876a-b80c6baf609c",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "e4ca39cf-373d-4c34-876a-b80c6baf609c",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/e4ca39cf-373d-4c34-876a-b80c6baf609c/gallery_5.jpg",
+        "sortOrder":  4
+    },
+    {
+        "vendorId":  "91b9d5f0-8c3a-424d-8490-909d7e914423",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/cover.jpg",
+        "mediaType":  "cover",
+        "isCover":  true,
+        "isPrimary":  true,
+        "storagePath":  "vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/cover.jpg",
+        "sortOrder":  0
+    },
+    {
+        "vendorId":  "91b9d5f0-8c3a-424d-8490-909d7e914423",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_2.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_2.jpg",
+        "sortOrder":  1
+    },
+    {
+        "vendorId":  "91b9d5f0-8c3a-424d-8490-909d7e914423",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_3.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_3.jpg",
+        "sortOrder":  2
+    },
+    {
+        "vendorId":  "91b9d5f0-8c3a-424d-8490-909d7e914423",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_4.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_4.jpg",
+        "sortOrder":  3
+    },
+    {
+        "vendorId":  "91b9d5f0-8c3a-424d-8490-909d7e914423",
+        "imageUrl":  "https://prxagoffeoaggumqojdd.supabase.co/storage/v1/object/public/vendor-images/vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_5.jpg",
+        "mediaType":  "food",
+        "isCover":  false,
+        "isPrimary":  false,
+        "storagePath":  "vendors/91b9d5f0-8c3a-424d-8490-909d7e914423/gallery_5.jpg",
+        "sortOrder":  4
+    }
+]

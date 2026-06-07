@@ -278,7 +278,8 @@ const DAY_LABELS: Record<string, string> = {
 }
 
 function OpeningHoursTable({ openingHours }: { openingHours: Record<string, string> }) {
-  const todayKey = DAY_KEYS[new Date().getDay()]
+  // Use UTC+7 to avoid server-side timezone bug on Vercel (UTC+0)
+  const todayKey = DAY_KEYS[new Date(Date.now() + 7 * 60 * 60 * 1000).getUTCDay()]
   return (
     <div className="space-y-0.5 mt-0.5">
       {DAY_KEYS.map(key => {
