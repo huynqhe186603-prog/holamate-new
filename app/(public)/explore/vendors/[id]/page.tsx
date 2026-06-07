@@ -10,7 +10,7 @@ import { CartButton } from '@/components/cart/CartButton'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { isVendorOpen } from '@/lib/utils/explore'
-import { VietMapEmbed } from '@/components/shared/VietMapEmbed'
+import { VietMapView } from '@/components/shared/VietMapView'
 import { CopyButton } from '@/components/shared/CopyButton'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, UtensilsCrossed,
@@ -217,15 +217,13 @@ export default async function VendorDetailPage({ params }: Props) {
         {/* Map */}
         {vendor.latitude && vendor.longitude && (
           <div className="py-6">
-            <h2 className="text-base font-bold text-neutral-900 mb-4">Vị trí</h2>
-            <div className="rounded-2xl overflow-hidden border border-neutral-200 aspect-[16/9]">
-              <VietMapEmbed
-                latitude={vendor.latitude}
-                longitude={vendor.longitude}
-                zoom={16}
-                title={vendor.name}
-              />
-            </div>
+            <h2 className="text-base font-bold text-neutral-900 mb-4">Vị trí &amp; Chỉ đường</h2>
+            <VietMapView
+              vendorLat={vendor.latitude}
+              vendorLng={vendor.longitude}
+              vendorName={vendor.name}
+              vendorAddress={vendor.address}
+            />
           </div>
         )}
       </div>
