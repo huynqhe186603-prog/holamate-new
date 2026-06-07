@@ -158,7 +158,7 @@ function WriteReviewForm() {
           image_url: urlData.publicUrl,
           storage_path: path,
           uploaded_by: user.id,
-          status: 'pending',
+          status: 'visible',
         })
       }
     }
@@ -176,7 +176,6 @@ function WriteReviewForm() {
         <h2 className="text-xl font-bold text-neutral-900 mb-2">Review đã được gửi!</h2>
         <p className="text-sm text-neutral-500 mb-6 leading-relaxed max-w-xs mx-auto">
           Cảm ơn bạn đã đóng góp cho cộng đồng HolaMate.
-          {images.length > 0 && ' Ảnh sẽ được duyệt trước khi hiển thị.'}
         </p>
         <div className="flex flex-col gap-2 max-w-xs mx-auto">
           <Link href="/reviews" className="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium flex items-center justify-center hover:bg-primary/90 transition-colors">
