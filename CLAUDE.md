@@ -114,7 +114,7 @@ seller_vendor_roles         — Liên kết seller ↔ vendor (N-N)
 
 ### Nhóm Quán/Gian hàng
 ```
-vendors                     — Quán ăn + gian hàng sinh viên (vendor_type: fixed_shop | student_booth)
+vendors                     — Quán ăn + gian hàng (vendor_type: fixed_shop | online_seller | student_booth)
 menu_items                  — Món ăn / sản phẩm của từng vendor
 ```
 
@@ -185,7 +185,10 @@ orders ──< order_items
 - `status`: `active` | `suspended` | `banned` | `deleted`
 
 ### vendors
-- `vendor_type`: `fixed_shop` | `student_booth`
+- `vendor_type`: `fixed_shop` | `online_seller` | `student_booth`
+  - `fixed_shop`: Quán ăn cố định — có map, có giờ mở cửa, có địa chỉ
+  - `online_seller`: Gian hàng giao hàng online — KHÔNG có map, KHÔNG có giờ mở cửa, liên hệ qua phone/Zalo
+  - `student_booth`: Gian hàng sinh viên — KHÔNG có map, có thời gian bán, có điểm hẹn
 - `status`: `pending` | `active` | `hidden` | `rejected` | `duplicate`
 - `source`: `google_maps` | `manual` | `seller_submitted`
 

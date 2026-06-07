@@ -22,7 +22,7 @@ export function FilterBar() {
   const [isPending, startTransition] = useTransition()
 
   const type = searchParams.get('type') ?? 'fixed_shop'
-  const isBoothMode = type === 'student_booth'
+  const isBoothMode = type === 'student_booth' || type === 'online_seller'
   const category = searchParams.get('category') ?? ''
   const maxPriceParam = Number(searchParams.get('max_price') ?? SLIDER_MAX)
   const openNow = searchParams.get('open_now') === 'true'

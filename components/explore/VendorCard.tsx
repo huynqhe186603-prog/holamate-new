@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Bike, Clock, Store, GraduationCap } from 'lucide-react'
+import { MapPin, Bike, Clock, Store, ShoppingBag, GraduationCap, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { StarRating } from '@/components/explore/StarRating'
 import { FOOD_CATEGORIES, formatPriceRange } from '@/lib/utils/explore'
@@ -111,6 +111,83 @@ export function VendorCard({ vendor, href }: VendorCardProps) {
             </div>
           )}
         </div>
+      </div>
+    </Link>
+  )
+}
+
+/* Online seller variant (online_seller) */
+export function OnlineSellerCard({ vendor, href }: VendorCardProps) {
+  const categoryLabels = vendor.food_categories
+    ?.map(key => FOOD_CATEGORIES.find(c => c.key === key)?.label)
+    .filter(Boolean)
+    .slice(0, 2) ?? []
+
+  return (
+    <Link
+      href={href}
+      className="group block rounded-2xl border border-orange-100 bg-white overflow-hidden hover:border-orange-300 hover:shadow-md hover:scale-[1.01] transition-all duration-200"
+    >
+      <div className="relative aspect-[16/9] bg-orange-50 overflow-hidden">
+        {vendor.cover_image_url ? (
+          <Image
+            src={vendor.cover_image_url}
+            alt={vendor.name}
+            fill
+            className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-orange-50">
+            <span className="text-4xl opacity-40">🛵</span>
+          </div>
+        )}
+
+        {/* Type badge — top-left */}
+        <div className="absolute top-2.5 left-2.5">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/90 text-white border border-orange-300 leading-tight backdrop-blur-sm">
+            <ShoppingBag className="w-2.5 h-2.5" />
+            Giao hàng online
+          </span>
+        </div>
+
+        {/* Ship badge — top-right (always shown) */}
+        <div className="absolute top-2.5 right-2.5">
+          <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary text-white leading-tight">
+            <Bike className="w-2.5 h-2.5" />
+            Ship tận nơi
+          </span>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-2">
+        <h3 className="font-semibold text-neutral-900 text-[15px] leading-snug line-clamp-1 group-hover:text-primary transition-colors">
+          {vendor.name}
+        </h3>
+
+        {categoryLabels.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {categoryLabels.map(label => (
+              <span key={label} className="px-2 py-0.5 rounded-md bg-orange-50 text-orange-600 text-[11px] font-medium">
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <StarRating rating={vendor.rating_avg} count={vendor.rating_count} />
+          <span className="text-xs font-medium text-neutral-600 shrink-0">
+            {formatPriceRange(vendor.price_range_min, vendor.price_range_max)}
+          </span>
+        </div>
+
+        {vendor.phone && (
+          <div className="flex items-center gap-1.5 text-neutral-400">
+            <Phone className="w-3 h-3 shrink-0" />
+            <span className="text-xs truncate">{vendor.phone}</span>
+          </div>
+        )}
       </div>
     </Link>
   )

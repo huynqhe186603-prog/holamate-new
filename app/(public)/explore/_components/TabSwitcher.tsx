@@ -2,11 +2,12 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useTransition } from 'react'
-import { Store, GraduationCap } from 'lucide-react'
+import { Store, ShoppingBag, GraduationCap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const TABS = [
   { key: 'fixed_shop', label: 'Quán ăn', icon: Store },
+  { key: 'online_seller', label: 'Gian hàng online', icon: ShoppingBag },
   { key: 'student_booth', label: 'Gian hàng SV', icon: GraduationCap },
 ] as const
 

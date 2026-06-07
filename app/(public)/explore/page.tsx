@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { VendorCard, BoothCard } from '@/components/explore/VendorCard'
+import { VendorCard, OnlineSellerCard, BoothCard } from '@/components/explore/VendorCard'
 import { VendorGridSkeleton } from '@/components/explore/VendorCardSkeleton'
 import { FilterBar } from './_components/FilterBar'
 import { TabSwitcher } from './_components/TabSwitcher'
@@ -26,7 +26,11 @@ interface ExplorePageProps {
 
 async function VendorGrid({ searchParams }: ExplorePageProps) {
   const supabase = createClient()
-  const type = searchParams.type === 'student_booth' ? 'student_booth' : 'fixed_shop'
+  const type = searchParams.type === 'student_booth'
+    ? 'student_booth'
+    : searchParams.type === 'online_seller'
+      ? 'online_seller'
+      : 'fixed_shop'
   const maxPrice = searchParams.max_price ? Number(searchParams.max_price) : null
   const openNow = searchParams.open_now === 'true'
   const hasDelivery = searchParams.has_delivery === 'true'
@@ -41,7 +45,7 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
       reviews(rating)
     `)
     .eq('status', 'active')
-    .eq('vendor_type', type)
+    .eq('vendor_type', type as any)
     .order('created_at', { ascending: false })
     .limit(30)
 
@@ -98,7 +102,11 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
     )
   }
 
-  const CardComponent = type === 'fixed_shop' ? VendorCard : BoothCard
+  const CardComponent = type === 'fixed_shop'
+    ? VendorCard
+    : type === 'online_seller'
+      ? OnlineSellerCard
+      : BoothCard
   const hrefPrefix = type === 'fixed_shop' ? '/explore/vendors' : '/explore/booths'
 
   return (
@@ -116,7 +124,11 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
 }
 
 export default function ExplorePage({ searchParams }: ExplorePageProps) {
-  const type = searchParams.type === 'student_booth' ? 'student_booth' : 'fixed_shop'
+  const type = searchParams.type === 'student_booth'
+    ? 'student_booth'
+    : searchParams.type === 'online_seller'
+      ? 'online_seller'
+      : 'fixed_shop'
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">

@@ -8,7 +8,7 @@ import { CartMenuSection } from '@/components/cart/CartMenuSection'
 import { CartButton } from '@/components/cart/CartButton'
 import { computeRating } from '@/lib/utils/explore'
 import {
-  ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, GraduationCap,
+  ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, GraduationCap, ShoppingBag,
 } from 'lucide-react'
 import type { Metadata } from 'next'
 
@@ -20,12 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createClient()
   const { data } = await supabase
     .from('vendors')
-    .select('name, description')
+    .select('name, description, vendor_type')
     .eq('id', params.id)
-    .eq('vendor_type', 'student_booth')
+    .in('vendor_type', ['student_booth', 'online_seller'] as any[])
     .single()
-  if (!data) return { title: 'Gian hàng sinh viên' }
-  return { title: data.name, description: data.description ?? undefined }
+  if (!data) return { title: 'Gian hàng' }
+  const title = (data.vendor_type as string) === 'online_seller' ? 'Gian hàng online' : 'Gian hàng sinh viên'
+  return { title: data.name, description: data.description ?? title }
 }
 
 export default async function BoothDetailPage({ params }: Props) {
@@ -53,11 +54,13 @@ export default async function BoothDetailPage({ params }: Props) {
     `)
     .eq('id', params.id)
     .eq('status', 'active')
-    .eq('vendor_type', 'student_booth')
+    .in('vendor_type', ['student_booth', 'online_seller'] as any[])
     .single()
 
   if (!vendor) notFound()
 
+  const vendorType = vendor.vendor_type as string
+  const isOnlineSeller = vendorType === 'online_seller'
   const openingHours = vendor.opening_hours as Record<string, string> | null
   const { avg: ratingAvg, count: ratingCount } = computeRating(
     (vendor.reviews ?? []).filter((r: any) => r.status === 'visible')
@@ -71,26 +74,29 @@ export default async function BoothDetailPage({ params }: Props) {
     .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
 
-  // Parse selling time from opening_hours (booths use same field, but different UX label)
+  // Booth: selling time from opening_hours
   const today = new Date()
   const dayKey = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][today.getDay()]
   const todaySelling = openingHours?.[dayKey]
+
+  const backHref = isOnlineSeller ? '/explore?type=online_seller' : '/explore?type=student_booth'
+  const backLabel = isOnlineSeller ? 'Gian hàng online' : 'Gian hàng sinh viên'
 
   return (
     <div className="pb-28 sm:pb-0">
       {/* Back */}
       <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-4">
         <Link
-          href="/explore?type=student_booth"
+          href={backHref}
           className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Gian hàng sinh viên
+          {backLabel}
         </Link>
       </div>
 
       {/* Cover */}
-      <div className="relative w-full aspect-[16/7] sm:aspect-[21/8] bg-violet-50 overflow-hidden mt-3">
+      <div className={`relative w-full aspect-[16/7] sm:aspect-[21/8] overflow-hidden mt-3 ${isOnlineSeller ? 'bg-orange-50' : 'bg-violet-50'}`}>
         {vendor.cover_image_url ? (
           <Image
             src={vendor.cover_image_url}
@@ -102,16 +108,37 @@ export default async function BoothDetailPage({ params }: Props) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <GraduationCap className="w-16 h-16 text-violet-300" />
+            {isOnlineSeller
+              ? <ShoppingBag className="w-16 h-16 text-orange-300" />
+              : <GraduationCap className="w-16 h-16 text-violet-300" />
+            }
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-        {/* Booth badge */}
-        <div className="absolute bottom-4 left-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-600/90 text-white text-xs font-semibold backdrop-blur-sm">
-            <GraduationCap className="w-3.5 h-3.5" />
-            Gian hàng sinh viên
-          </span>
+
+        {/* Type badge */}
+        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+          {isOnlineSeller ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/90 text-white text-xs font-semibold backdrop-blur-sm">
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Giao hàng online
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-600/90 text-white text-xs font-semibold backdrop-blur-sm">
+              <GraduationCap className="w-3.5 h-3.5" />
+              Gian hàng sinh viên
+            </span>
+          )}
+          {isOnlineSeller && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-semibold border border-white/30">
+              🛵 Ship tận nơi
+            </span>
+          )}
+          {!isOnlineSeller && vendor.has_delivery && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/90 backdrop-blur-sm text-white text-xs font-semibold">
+              Có ship
+            </span>
+          )}
         </div>
       </div>
 
@@ -125,7 +152,12 @@ export default async function BoothDetailPage({ params }: Props) {
           )}
           <div className="flex items-center gap-3 mt-2.5 flex-wrap">
             <StarRating rating={ratingAvg} count={ratingCount} size="md" />
-            {vendor.has_delivery && (
+            {isOnlineSeller && (
+              <span className="flex items-center gap-1 text-xs text-primary font-medium">
+                🛵 Ship tận nơi
+              </span>
+            )}
+            {!isOnlineSeller && vendor.has_delivery && (
               <span className="flex items-center gap-1 text-xs text-blue-600 font-medium">
                 <Truck className="w-3.5 h-3.5" /> Có giao
               </span>
@@ -135,65 +167,107 @@ export default async function BoothDetailPage({ params }: Props) {
 
         {/* Info */}
         <div className="py-5 border-b border-neutral-100 space-y-4">
-          {/* Selling time today */}
-          <div className="flex gap-3">
-            <Clock className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Thời gian bán</p>
-              <p className="text-sm text-neutral-700">
-                {todaySelling && todaySelling !== 'closed'
-                  ? `Hôm nay: ${todaySelling}`
-                  : 'Không bán hôm nay'}
-              </p>
-            </div>
-          </div>
-
-          {/* Pickup location */}
-          {(vendor.address || vendor.area) && (
-            <div className="flex gap-3">
-              <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Điểm hẹn nhận hàng</p>
-                <p className="text-sm text-neutral-700">{vendor.address ?? vendor.area}</p>
+          {isOnlineSeller ? (
+            /* Online seller: contact-focused, no address/hours */
+            <>
+              <div className="rounded-xl bg-orange-50 border border-orange-100 p-4 space-y-2">
+                <p className="text-sm font-semibold text-neutral-800">Liên hệ đặt hàng</p>
+                <p className="text-xs text-neutral-500">
+                  Nhắn tin để đặt hàng và hỏi thời gian giao hàng
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {vendor.phone && (
+                    <a
+                      href={`tel:${vendor.phone}`}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      <Phone className="w-4 h-4" />
+                      {vendor.phone}
+                    </a>
+                  )}
+                  {vendor.zalo && (
+                    <a
+                      href={`https://zalo.me/${vendor.zalo.replace(/^0/, '84')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Nhắn Zalo
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Delivery note */}
-          {vendor.delivery_note && (
-            <div className="flex gap-3">
-              <Truck className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Giao hàng</p>
-                <p className="text-sm text-neutral-700">{vendor.delivery_note}</p>
+              {vendor.delivery_note && (
+                <div className="flex gap-3">
+                  <Truck className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Giao hàng</p>
+                    <p className="text-sm text-neutral-700">{vendor.delivery_note}</p>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Student booth: selling time + pickup location + contact */
+            <>
+              <div className="flex gap-3">
+                <Clock className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Thời gian bán</p>
+                  <p className="text-sm text-neutral-700">
+                    {todaySelling && todaySelling !== 'closed'
+                      ? `Hôm nay: ${todaySelling}`
+                      : 'Không bán hôm nay'}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Phone + Zalo — prominent contact */}
-          {(vendor.phone || vendor.zalo) && (
-            <div className="flex flex-wrap gap-2 pt-1">
-              {vendor.phone && (
-                <a
-                  href={`tel:${vendor.phone}`}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
-                >
-                  <Phone className="w-4 h-4" />
-                  {vendor.phone}
-                </a>
+              {(vendor.address || vendor.area) && (
+                <div className="flex gap-3">
+                  <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Điểm hẹn nhận hàng</p>
+                    <p className="text-sm text-neutral-700">{vendor.address ?? vendor.area}</p>
+                  </div>
+                </div>
               )}
-              {vendor.zalo && (
-                <a
-                  href={`https://zalo.me/${vendor.zalo.replace(/^0/, '84')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  Nhắn Zalo
-                </a>
+
+              {vendor.delivery_note && (
+                <div className="flex gap-3">
+                  <Truck className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-0.5">Giao hàng</p>
+                    <p className="text-sm text-neutral-700">{vendor.delivery_note}</p>
+                  </div>
+                </div>
               )}
-            </div>
+
+              {(vendor.phone || vendor.zalo) && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {vendor.phone && (
+                    <a
+                      href={`tel:${vendor.phone}`}
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      <Phone className="w-4 h-4" />
+                      {vendor.phone}
+                    </a>
+                  )}
+                  {vendor.zalo && (
+                    <a
+                      href={`https://zalo.me/${vendor.zalo.replace(/^0/, '84')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Nhắn Zalo
+                    </a>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -254,7 +328,6 @@ export default async function BoothDetailPage({ params }: Props) {
             <PhotoGallery photos={visiblePhotos as any} />
           </div>
         )}
-
       </div>
 
       {/* Floating cart button */}
