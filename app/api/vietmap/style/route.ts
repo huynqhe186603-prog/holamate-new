@@ -25,12 +25,11 @@ export async function GET() {
 
   const style = await res.json()
 
-  // Replace all absolute VietMap URLs with relative proxy URLs.
-  // This routes tile/glyph/sprite fetches through our backend,
-  // eliminating CORS issues in the browser.
+  // Must be absolute URL — VietMap GL JS cannot resolve relative URLs for tiles/glyphs/sprites
+  const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://holamate-new.vercel.app'
   const toProxy = (url: string) =>
     url
-      .replace(/^https:\/\/maps\.vietmap\.vn\//, '/api/vietmap/')
+      .replace(/^https:\/\/maps\.vietmap\.vn\//, `${BASE}/api/vietmap/`)
       .replace(/[?&]apikey=[^&]*/g, '') // strip apikey — added server-side by [...path] route
 
   for (const src of Object.values(style.sources ?? {}) as any[]) {
