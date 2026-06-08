@@ -7,30 +7,47 @@ const corsHeaders = {
 
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
-const SYSTEM_PROMPT = `Bạn là trợ lý ẩm thực thân thiện cho sinh viên khu Hòa Lạc, Hà Nội.
-Phân tích yêu cầu người dùng và trả về JSON:
+const SYSTEM_PROMPT = `Bạn là trợ lý ẩm thực thân thiện tên Mate, dành cho sinh viên khu Hòa Lạc, Hà Nội.
+
+TÍNH CÁCH:
+- Thân thiện, vui vẻ như người bạn cùng phòng
+- Dùng ngôn ngữ sinh viên tự nhiên
+- Có thể dùng emoji nhẹ (1-2 cái/câu)
+- Nhớ và tham chiếu context từ tin nhắn trước
+- Ví dụ: "Giữ nguyên 70k từ nãy nha bạn..." / "Oke, thêm bún vào list nhé 😄" / "Với ngân sách đó ăn được cả 2 luôn!"
+
+JSON FORMAT (chỉ trả về JSON thuần):
 {
   "filters": {
-    "vendor_type": "fixed_shop" | "student_booth" | null,
-    "category": "com" | "bun_pho_mi" | "tra_sua" | "cafe" | "an_vat" | "do_uong" | null,
-    "max_price": <số nguyên VND hoặc null>,
-    "has_ship": true | false | null,
-    "is_open_now": true | false | null,
-    "min_rating": <số thực hoặc null>,
-    "max_rating": <số thực hoặc null>,
-    "keywords": [<từ khóa tên quán hoặc khu vực, mảng string, tối đa 2 phần tử>]
+    "vendor_type": "fixed_shop"|"online_seller"|"student_booth"|null,
+    "categories": ["com","bun_pho_mi","tra_sua","cafe","an_vat","do_uong"],
+    "max_price": <số VND hoặc null>,
+    "has_ship": true|false|null,
+    "is_open_now": true|false|null,
+    "min_rating": <số 1-5 hoặc null>,
+    "max_rating": <số 1-5 hoặc null>,
+    "keywords": [<tối đa 2 từ khóa>]
   },
-  "explanation": "<1-2 câu ngắn, thân thiện, bằng tiếng Việt, giải thích mình sẽ tìm gì>"
+  "explanation": "<1-2 câu thân thiện, tham chiếu context cũ nếu có, giải thích sẽ tìm gì>"
 }
-Quy tắc parse rating (thang 1-5 sao):
+
+QUY TẮC PARSE:
+- "cơm và bún" → categories: ["com","bun_pho_mi"]
+- "cơm hoặc phở" → categories: ["com","bun_pho_mi"]
+- "thêm bún nữa" → giữ categories cũ + thêm "bun_pho_mi"
+- "cần ship" → has_ship: true, giữ filters khác từ context
+- "dưới 50k" → max_price: 50000
+- "ngon/chất lượng" → min_rating: 4
 - "3 sao" → min_rating: 2.5, max_rating: 3.5
 - "4 sao" → min_rating: 3.5, max_rating: 4.5
 - "5 sao" → min_rating: 4.5, max_rating: null
-- "trên 4 sao" hoặc "từ 4 sao" hoặc "4 sao trở lên" → min_rating: 4, max_rating: null
-- "dưới 3 sao" → min_rating: null, max_rating: 3
-- "tốt", "ngon", "chất lượng" → min_rating: 4, max_rating: null
-- Không đề cập rating → min_rating: null, max_rating: null
-Lưu ý: category chỉ chọn 1 trong các giá trị đã liệt kê hoặc null. Chỉ trả về JSON thuần túy, không markdown.`
+- "trên 4 sao" → min_rating: 4, max_rating: null
+- "quán ăn" → vendor_type: "fixed_shop"
+- "gian hàng online" → vendor_type: "online_seller"
+- "gian hàng SV" → vendor_type: "student_booth"
+- Nếu có context từ tin trước → merge filters (giữ nguyên giá trị cũ, chỉ cập nhật field được nhắc tới)
+
+CHỈ trả về JSON thuần, không markdown, không giải thích thêm.`
 
 function isVendorOpen(openingHours: Record<string, string> | null): boolean {
   if (!openingHours) return false
@@ -52,7 +69,10 @@ function stripMarkdownFences(text: string): string {
   return text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
 }
 
-async function callGroq(apiKey: string, query: string): Promise<string> {
+type ChatMessage = { role: 'user' | 'assistant'; content: string }
+
+async function callGroq(apiKey: string, query: string, history: ChatMessage[]): Promise<string> {
+  const recentHistory = history.slice(-10)
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -63,10 +83,11 @@ async function callGroq(apiKey: string, query: string): Promise<string> {
       model: 'llama-3.1-8b-instant',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
+        ...recentHistory,
         { role: 'user', content: query },
       ],
       max_tokens: 512,
-      temperature: 0.1,
+      temperature: 0.2,
     }),
   })
   if (!res.ok) {
@@ -83,7 +104,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { query, userId, sessionId } = await req.json()
+    const { query, userId, sessionId, messages } = await req.json()
 
     if (!query?.trim()) {
       return new Response(
@@ -92,6 +113,8 @@ Deno.serve(async (req) => {
       )
     }
 
+    const history: ChatMessage[] = Array.isArray(messages) ? messages : []
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -99,7 +122,7 @@ Deno.serve(async (req) => {
 
     let filters = {
       vendor_type: null as string | null,
-      category: null as string | null,
+      categories: [] as string[],
       max_price: null as number | null,
       has_ship: null as boolean | null,
       is_open_now: null as boolean | null,
@@ -112,13 +135,18 @@ Deno.serve(async (req) => {
     try {
       const apiKey = Deno.env.get('GROQ_API_KEY')!
       if (!apiKey) throw new Error('GROQ_API_KEY is not set')
-      const rawText = await callGroq(apiKey, query)
+      const rawText = await callGroq(apiKey, query, history)
       const parsed = JSON.parse(stripMarkdownFences(rawText))
-      if (parsed.filters) filters = { ...filters, ...parsed.filters }
+      if (parsed.filters) {
+        filters = {
+          ...filters,
+          ...parsed.filters,
+          categories: Array.isArray(parsed.filters.categories) ? parsed.filters.categories : [],
+        }
+      }
       if (parsed.explanation) explanation = parsed.explanation
     } catch (e) {
       console.error('Groq call failed:', e)
-      // use defaults on AI failure — still return DB results
     }
 
     // deno-lint-ignore no-explicit-any
@@ -137,7 +165,15 @@ Deno.serve(async (req) => {
     if (filters.vendor_type) q = q.eq('vendor_type', filters.vendor_type)
     if (filters.has_ship === true) q = q.eq('has_delivery', true)
     if (filters.max_price) q = q.lte('price_range_min', filters.max_price)
-    if (filters.category) q = q.contains('food_categories', [filters.category])
+
+    if (filters.categories.length > 0) {
+      const orClauses = filters.categories
+        .slice(0, 3)
+        .map((cat: string) => `food_categories.cs.{"${cat}"}`)
+        .join(',')
+      q = q.or(orClauses)
+    }
+
     if (filters.keywords?.length) {
       q = q.or(`name.ilike.%${filters.keywords[0]}%,description.ilike.%${filters.keywords[0]}%`)
     }
