@@ -125,7 +125,7 @@ export type VendorWithRating = {
   id: string
   name: string
   description: string | null
-  vendor_type: 'fixed_shop' | 'student_booth'
+  vendor_type: 'fixed_shop' | 'student_booth' | 'online_seller'
   cover_image_url: string | null
   logo_url: string | null
   phone: string | null

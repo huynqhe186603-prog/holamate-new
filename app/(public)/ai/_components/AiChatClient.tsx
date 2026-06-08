@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Bot, Sparkles, RotateCcw, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { VendorCard, BoothCard } from '@/components/explore/VendorCard'
+import { VendorCard, BoothCard, OnlineSellerCard } from '@/components/explore/VendorCard'
 import type { VendorWithRating } from '@/lib/utils/explore'
 
 type ChatHistoryItem = { role: 'user' | 'assistant'; content: string }
@@ -219,7 +219,10 @@ function MessageBubble({ msg }: { msg: Message }) {
         {!isUser && (msg as AIMessage).vendors.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {(msg as AIMessage).vendors.slice(0, 6).map(v => {
-              const Card = v.vendor_type === 'fixed_shop' ? VendorCard : BoothCard
+              const Card =
+                v.vendor_type === 'fixed_shop' ? VendorCard :
+                v.vendor_type === 'online_seller' ? OnlineSellerCard :
+                BoothCard
               const href = v.vendor_type === 'fixed_shop'
                 ? `/explore/vendors/${v.id}`
                 : `/explore/booths/${v.id}`
