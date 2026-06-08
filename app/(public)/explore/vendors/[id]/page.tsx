@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 import { isVendorOpen } from '@/lib/utils/explore'
 import { VietMapView } from '@/components/shared/VietMapView'
 import { CopyButton } from '@/components/shared/CopyButton'
+import { ReportVendorButton } from '@/components/shared/ReportVendorButton'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, UtensilsCrossed,
 } from 'lucide-react'
@@ -242,6 +243,11 @@ export default async function VendorDetailPage({ params }: Props) {
           </a>
         </div>
       )}
+
+      {/* Report link */}
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 pb-6 flex justify-end">
+        <ReportVendorButton vendorId={vendor.id} />
+      </div>
 
       {/* Floating cart button */}
       <CartButton vendorId={vendor.id} />

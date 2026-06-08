@@ -7,6 +7,7 @@ import { PhotoGallery } from '../../_components/PhotoGallery'
 import { CartMenuSection } from '@/components/cart/CartMenuSection'
 import { CartButton } from '@/components/cart/CartButton'
 import { computeRating } from '@/lib/utils/explore'
+import { ReportVendorButton } from '@/components/shared/ReportVendorButton'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, GraduationCap, ShoppingBag,
 } from 'lucide-react'
@@ -328,6 +329,11 @@ export default async function BoothDetailPage({ params }: Props) {
             <PhotoGallery photos={visiblePhotos as any} />
           </div>
         )}
+      </div>
+
+      {/* Report link */}
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 pb-6 flex justify-end">
+        <ReportVendorButton vendorId={vendor.id} />
       </div>
 
       {/* Floating cart button */}

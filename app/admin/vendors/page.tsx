@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { logAdminAction } from '@/lib/admin'
 import { cn } from '@/lib/utils'
-import { Check, X, EyeOff, Search, ChevronDown, ChevronUp } from 'lucide-react'
+import { Check, X, EyeOff, Search, ChevronDown, ChevronUp, Flag } from 'lucide-react'
 
 const STATUS_CFG: Record<string, { label: string; classes: string }> = {
   pending:   { label: 'Chờ duyệt', classes: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
@@ -46,6 +46,8 @@ export default function AdminVendorsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<any>({})
+  const [reports, setReports] = useState<Record<string, any[]>>({})
+  const [reportsLoaded, setReportsLoaded] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -65,6 +67,46 @@ export default function AdminVendorsPage() {
       .order('created_at', { ascending: false })
     setVendors(data ?? [])
     setLoading(false)
+
+    // Load reports grouped by vendor (cast to any — table added after type generation)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any
+    const { data: rData } = await db
+      .from('vendor_reports')
+      .select('id, vendor_id, reason, description, status, created_at')
+      .order('created_at', { ascending: false })
+    if (rData) {
+      const grouped: Record<string, any[]> = {}
+      for (const r of rData) {
+        if (!grouped[r.vendor_id]) grouped[r.vendor_id] = []
+        grouped[r.vendor_id].push(r)
+      }
+      setReports(grouped)
+    }
+    setReportsLoaded(true)
+  }
+
+  const updateReportStatus = async (reportId: string, status: 'reviewed' | 'dismissed') => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any
+    await db.from('vendor_reports').update({ status }).eq('id', reportId)
+    setReports(prev => {
+      const next = { ...prev }
+      for (const vid of Object.keys(next)) {
+        next[vid] = next[vid].map(r => r.id === reportId ? { ...r, status } : r)
+      }
+      return next
+    })
+  }
+
+  const REASON_LABELS: Record<string, string> = {
+    wrong_hours:   'Giờ không đúng',
+    wrong_price:   'Giá không đúng',
+    wrong_info:    'Địa chỉ sai',
+    wrong_image:   'Ảnh sai',
+    closed_down:   'Đã đóng cửa',
+    inappropriate: 'Không phù hợp',
+    other:         'Lý do khác',
   }
 
   const filtered = vendors.filter(v => {
@@ -151,13 +193,14 @@ export default function AdminVendorsPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide hidden xl:table-cell">Nguồn</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide hidden lg:table-cell">Ngày tạo</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide hidden md:table-cell">Reports</th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-50">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-neutral-400">
+                  <td colSpan={7} className="px-4 py-8 text-center text-sm text-neutral-400">
                     Không tìm thấy vendor nào.
                   </td>
                 </tr>
@@ -191,6 +234,16 @@ export default function AdminVendorsPage() {
                     <td className="px-4 py-3 text-neutral-500 hidden xl:table-cell">{vendor.source}</td>
                     <td className="px-4 py-3 text-neutral-500 hidden lg:table-cell">
                       {new Date(vendor.created_at).toLocaleDateString('vi-VN')}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      {reportsLoaded && (reports[vendor.id]?.filter(r => r.status === 'pending').length ?? 0) > 0 ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-semibold border border-red-200">
+                          <Flag className="w-2.5 h-2.5" />
+                          {reports[vendor.id].filter(r => r.status === 'pending').length} pending
+                        </span>
+                      ) : (
+                        <span className="text-neutral-300 text-xs">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1.5">
@@ -271,20 +324,62 @@ export default function AdminVendorsPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="grid gap-4 sm:grid-cols-3 text-sm">
-                            <div>
-                              <p className="text-xs font-semibold text-neutral-500 mb-1">Thông tin</p>
-                              <p className="text-neutral-700">{vendor.phone || 'Chưa có SĐT'}</p>
-                              <p className="text-neutral-600 text-xs mt-0.5">{vendor.address || 'Chưa có địa chỉ'}</p>
+                          <div className="space-y-4">
+                            <div className="grid gap-4 sm:grid-cols-3 text-sm">
+                              <div>
+                                <p className="text-xs font-semibold text-neutral-500 mb-1">Thông tin</p>
+                                <p className="text-neutral-700">{vendor.phone || 'Chưa có SĐT'}</p>
+                                <p className="text-neutral-600 text-xs mt-0.5">{vendor.address || 'Chưa có địa chỉ'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-neutral-500 mb-1">Mô tả</p>
+                                <p className="text-neutral-600 text-xs line-clamp-3">{vendor.description || 'Chưa có mô tả'}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-neutral-500 mb-1">ID</p>
+                                <p className="text-neutral-400 text-xs font-mono">{vendor.id}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-xs font-semibold text-neutral-500 mb-1">Mô tả</p>
-                              <p className="text-neutral-600 text-xs line-clamp-3">{vendor.description || 'Chưa có mô tả'}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs font-semibold text-neutral-500 mb-1">ID</p>
-                              <p className="text-neutral-400 text-xs font-mono">{vendor.id}</p>
-                            </div>
+
+                            {/* Reports section */}
+                            {reportsLoaded && reports[vendor.id]?.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-neutral-500 mb-2 flex items-center gap-1">
+                                  <Flag className="w-3 h-3 text-red-400" />
+                                  Báo cáo ({reports[vendor.id].length})
+                                </p>
+                                <div className="space-y-2">
+                                  {reports[vendor.id].map((r: any) => (
+                                    <div key={r.id} className="flex items-start justify-between gap-3 rounded-xl border border-neutral-100 bg-white px-3 py-2 text-xs">
+                                      <div className="space-y-0.5">
+                                        <span className={`inline-flex px-1.5 py-0.5 rounded-full font-semibold ${
+                                          r.status === 'pending' ? 'bg-red-100 text-red-700' :
+                                          r.status === 'reviewed' ? 'bg-blue-100 text-blue-700' :
+                                          'bg-neutral-100 text-neutral-500'
+                                        }`}>
+                                          {r.status}
+                                        </span>
+                                        <p className="font-medium text-neutral-700">{REASON_LABELS[r.reason] ?? r.reason}</p>
+                                        {r.description && <p className="text-neutral-500">{r.description}</p>}
+                                        <p className="text-neutral-400">{new Date(r.created_at).toLocaleDateString('vi-VN')}</p>
+                                      </div>
+                                      {r.status === 'pending' && (
+                                        <div className="flex gap-1 shrink-0">
+                                          <Button size="sm" variant="outline"
+                                            className="h-6 px-2 text-[10px] text-blue-600 border-blue-200"
+                                            onClick={() => updateReportStatus(r.id, 'reviewed')}
+                                          >Đã xem</Button>
+                                          <Button size="sm" variant="outline"
+                                            className="h-6 px-2 text-[10px] text-neutral-500"
+                                            onClick={() => updateReportStatus(r.id, 'dismissed')}
+                                          >Bỏ qua</Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </td>
