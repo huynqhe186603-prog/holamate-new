@@ -38,10 +38,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'No route found' }, { status: 404 })
   }
 
+  // path.points is a GeoJSON LineString object {type, coordinates}
+  // extract .coordinates so frontend can use it directly as GeoJSON coordinates
   return NextResponse.json({
-    distance: path.distance,  // metres
-    time: path.time,          // milliseconds
-    points: path.points,      // [[lng, lat], ...]
-    bbox: path.bbox,          // [minLng, minLat, maxLng, maxLat]
+    distance: path.distance,
+    time: path.time,
+    points: path.points?.coordinates ?? path.points,
+    bbox: path.bbox,
   })
 }

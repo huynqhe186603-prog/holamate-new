@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { MapPin, Navigation, X, Loader2, ExternalLink, AlertCircle } from 'lucide-react'
+import { MapPin, Navigation, X, Loader2, ExternalLink, AlertCircle, Clock } from 'lucide-react'
 
 const CDN_CSS = 'https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.css'
 const CDN_JS  = 'https://unpkg.com/@vietmap/vietmap-gl-js@6.0.1/dist/vietmap-gl.js'
@@ -249,36 +249,46 @@ export function VietMapView({ vendorLat, vendorLng, vendorName, vendorAddress }:
         )}
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap">
-        {isLoadingRoute && (
-          <span className="flex items-center gap-1.5 text-sm text-neutral-500">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />Đang tính đường đi…
-          </span>
-        )}
-        {routeInfo && !isLoadingRoute && (
-          <span className="flex items-center gap-1.5 text-sm font-medium text-neutral-700">
-            <Navigation className="w-3.5 h-3.5 text-blue-500" />
-            {fmtDist(routeInfo.distance)} · {fmtTime(routeInfo.time)}
-          </span>
-        )}
-        {gpsError && !isLoadingRoute && !routeInfo && (
-          <span className="text-xs text-neutral-400">{gpsError}</span>
-        )}
-        <div className="ml-auto flex items-center gap-2">
-          <a
-            href={googleMapsDir}
-            target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:border-neutral-300 transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />Google Maps
-          </a>
-          <button
-            onClick={() => setShowMap(false)}
-            className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-500 hover:text-red-500 hover:border-red-200 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />Đóng
-          </button>
+      {/* Route info / loading / GPS error */}
+      {isLoadingRoute && (
+        <div className="flex items-center gap-2 px-4 py-3 bg-blue-50 rounded-xl border border-blue-100">
+          <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+          <span className="text-sm text-blue-600">Đang tính đường đi…</span>
         </div>
+      )}
+      {routeInfo && !isLoadingRoute && (
+        <div className="flex items-center gap-4 px-4 py-3 bg-blue-50 rounded-xl border border-blue-100">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-blue-700">
+            <Navigation className="w-4 h-4" />
+            {fmtDist(routeInfo.distance)}
+          </div>
+          <div className="text-neutral-300">|</div>
+          <div className="flex items-center gap-1.5 text-sm text-blue-600">
+            <Clock className="w-4 h-4" />
+            {fmtTime(routeInfo.time)}
+          </div>
+          <div className="ml-auto text-xs text-blue-500">🏍️ Xe máy</div>
+        </div>
+      )}
+      {gpsError && !isLoadingRoute && !routeInfo && (
+        <p className="text-xs text-neutral-400 px-1">{gpsError}</p>
+      )}
+
+      {/* Actions */}
+      <div className="flex items-center justify-end gap-2">
+        <a
+          href={googleMapsDir}
+          target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:border-neutral-300 transition-colors"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />Google Maps
+        </a>
+        <button
+          onClick={() => setShowMap(false)}
+          className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-500 hover:text-red-500 hover:border-red-200 transition-colors"
+        >
+          <X className="w-3.5 h-3.5" />Đóng
+        </button>
       </div>
     </div>
   )
