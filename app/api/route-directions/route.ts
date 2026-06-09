@@ -4,22 +4,18 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const fromLat = searchParams.get('fromLat')
   const fromLng = searchParams.get('fromLng')
-  const toLat = searchParams.get('toLat')
-  const toLng = searchParams.get('toLng')
+  const toLat   = searchParams.get('toLat')
+  const toLng   = searchParams.get('toLng')
 
   if (!fromLat || !fromLng || !toLat || !toLng) {
     return NextResponse.json({ error: 'Missing params' }, { status: 400 })
   }
 
-  const apiKey = process.env.VIETMAP_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-  }
-
+  // OSRM public routing API — free, no key, coordinates [lng,lat]
   const url =
-    `https://maps.vietmap.vn/api/route/v3?apikey=${apiKey}` +
-    `&point=${fromLat},${fromLng}&point=${toLat},${toLng}` +
-    `&vehicle=motorcycle&points_encoded=false`
+    `https://router.project-osrm.org/route/v1/motorcycle/` +
+    `${fromLng},${fromLat};${toLng},${toLat}` +
+    `?overview=full&geometries=geojson&steps=false`
 
   let res: Response
   try {
@@ -33,17 +29,26 @@ export async function GET(req: NextRequest) {
   }
 
   const data = await res.json()
-  const path = data?.paths?.[0]
-  if (!path) {
+  const route = data?.routes?.[0]
+  if (!route) {
     return NextResponse.json({ error: 'No route found' }, { status: 404 })
   }
 
-  // path.points is a GeoJSON LineString object {type, coordinates}
-  // extract .coordinates so frontend can use it directly as GeoJSON coordinates
+  // Compute bbox from coordinates
+  const coords: [number, number][] = route.geometry?.coordinates ?? []
+  let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity
+  for (const [lng, lat] of coords) {
+    if (lng < minLng) minLng = lng
+    if (lat < minLat) minLat = lat
+    if (lng > maxLng) maxLng = lng
+    if (lat > maxLat) maxLat = lat
+  }
+  const bbox = coords.length ? [minLng, minLat, maxLng, maxLat] : null
+
   return NextResponse.json({
-    distance: path.distance,
-    time: path.time,
-    points: path.points?.coordinates ?? path.points,
-    bbox: path.bbox,
+    distance: route.distance,                 // meters
+    time: Math.round(route.duration * 1000),  // ms (OSRM returns seconds)
+    points: coords,                           // [[lng, lat], ...] — GeoJSON order
+    bbox,
   })
 }

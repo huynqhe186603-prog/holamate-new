@@ -72,23 +72,32 @@ export function VietMapView({ vendorLat, vendorLng, vendorName, vendorAddress }:
 
     setIsLoadingRoute(true)
     try {
+      console.log('[VietMapView] fetching route…', { userLat, userLng, vendorLat, vendorLng })
       const res = await fetch(
         `/api/route-directions?fromLat=${userLat}&fromLng=${userLng}&toLat=${vendorLat}&toLng=${vendorLng}`
       )
-      if (!res.ok || cancelledRef.current) return
+      if (!res.ok || cancelledRef.current) {
+        console.warn('[VietMapView] route API not ok:', res.status)
+        return
+      }
       const data = await res.json()
+      console.log('[VietMapView] route data:', data)
       if (cancelledRef.current) return
+
+      if (!Array.isArray(data.points) || data.points.length < 2) {
+        console.warn('[VietMapView] route points invalid:', data.points)
+        return
+      }
       setRouteInfo({ distance: data.distance, time: data.time })
 
+      const geojson = {
+        type: 'Feature' as const,
+        geometry: { type: 'LineString' as const, coordinates: data.points },
+      }
       if (map.getSource('route')) {
-        ;(map.getSource('route') as any).setData({
-          type: 'Feature', geometry: { type: 'LineString', coordinates: data.points },
-        })
+        ;(map.getSource('route') as any).setData(geojson)
       } else {
-        map.addSource('route', {
-          type: 'geojson',
-          data: { type: 'Feature', geometry: { type: 'LineString', coordinates: data.points } },
-        })
+        map.addSource('route', { type: 'geojson', data: geojson })
         map.addLayer({
           id: 'route-line', type: 'line', source: 'route',
           layout: { 'line-join': 'round', 'line-cap': 'round' },
@@ -101,7 +110,9 @@ export function VietMapView({ vendorLat, vendorLng, vendorName, vendorAddress }:
           { padding: 60, maxZoom: 17 }
         )
       }
-    } catch { /* silent */ } finally {
+    } catch (err) {
+      console.error('[VietMapView] drawRoute error:', err)
+    } finally {
       if (!cancelledRef.current) setIsLoadingRoute(false)
     }
   }, [vendorLat, vendorLng])
