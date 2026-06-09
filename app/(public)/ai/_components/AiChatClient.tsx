@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Bot, Sparkles, RotateCcw, X } from 'lucide-react'
+import { Send, Bot, Sparkles, RotateCcw, X, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VendorCard, BoothCard, OnlineSellerCard } from '@/components/explore/VendorCard'
 import type { VendorWithRating } from '@/lib/utils/explore'
@@ -28,13 +28,23 @@ const SUGGESTIONS = [
 ]
 
 export function AiChatClient() {
-  const [messages, setMessages]       = useState<Message[]>([])
-  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
-  const [input, setInput]             = useState('')
-  const [loading, setLoading]         = useState(false)
-  const bottomRef  = useRef<HTMLDivElement>(null)
-  const inputRef   = useRef<HTMLInputElement>(null)
-  const supabase   = createClient()
+  const [messages, setMessages]         = useState<Message[]>([])
+  const [chatHistory, setChatHistory]   = useState<ChatHistoryItem[]>([])
+  const [input, setInput]               = useState('')
+  const [loading, setLoading]           = useState(false)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const inputRef  = useRef<HTMLInputElement>(null)
+  const supabase  = createClient()
+
+  // Silent GPS on mount
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {}
+    )
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -60,7 +70,12 @@ export function AiChatClient() {
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: { query: q, messages: newHistory },
+        body: {
+          query: q,
+          messages: newHistory,
+          userLat: userLocation?.lat ?? null,
+          userLng: userLocation?.lng ?? null,
+        },
       })
 
       if (error) throw error
@@ -87,7 +102,7 @@ export function AiChatClient() {
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-  }, [loading, chatHistory, supabase])
+  }, [loading, chatHistory, supabase, userLocation])
 
   const isEmpty = messages.length === 0
   const exchangeCount = Math.floor(chatHistory.length / 2)
@@ -139,6 +154,12 @@ export function AiChatClient() {
       {/* Fixed bottom input */}
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-white/95 backdrop-blur-sm border-t border-neutral-200">
         <div className="max-w-2xl mx-auto px-4 py-3">
+          {userLocation && (
+            <div className="flex items-center gap-1 mb-1.5">
+              <MapPin className="w-3 h-3 text-green-500" />
+              <span className="text-xs text-green-600">Đã lấy vị trí của bạn</span>
+            </div>
+          )}
           <form
             onSubmit={e => { e.preventDefault(); handleSend(input) }}
             className="flex items-center gap-2"
@@ -226,7 +247,22 @@ function MessageBubble({ msg }: { msg: Message }) {
               const href = v.vendor_type === 'fixed_shop'
                 ? `/explore/vendors/${v.id}`
                 : `/explore/booths/${v.id}`
-              return <Card key={v.id} vendor={v} href={href} />
+              return (
+                <div key={v.id}>
+                  <Card vendor={v} href={href} />
+                  {v.distance_km != null && (
+                    <div className="mt-1 flex justify-start pl-1">
+                      <span
+                        className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100"
+                        title="Khoảng cách ước tính đường chim bay. Xem bản đồ để biết đường đi thực tế"
+                      >
+                        <MapPin className="w-3 h-3" />
+                        ~{v.distance_km}km
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )
             })}
           </div>
         )}

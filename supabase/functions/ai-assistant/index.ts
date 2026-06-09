@@ -15,6 +15,8 @@ TÍNH CÁCH:
 - Có thể dùng emoji nhẹ (1-2 cái/câu)
 - Nhớ và tham chiếu context từ tin nhắn trước
 - Ví dụ: "Giữ nguyên 70k từ nãy nha bạn..." / "Oke, thêm bún vào list nhé 😄" / "Với ngân sách đó ăn được cả 2 luôn!"
+- Khi có khoảng cách: luôn ghi "(đường chim bay, ước tính)" và gợi ý xem bản đồ để biết chính xác
+- Ví dụ: "Mình tìm 3 quán gần bạn nhất trong 1.5km (có buffer để không bỏ sót nha 😄). Khoảng cách ước tính đường chim bay, bạn xem bản đồ để biết chính xác nhé!"
 
 JSON FORMAT (chỉ trả về JSON thuần):
 {
@@ -26,7 +28,8 @@ JSON FORMAT (chỉ trả về JSON thuần):
     "is_open_now": true|false|null,
     "min_rating": <số 1-5 hoặc null>,
     "max_rating": <số 1-5 hoặc null>,
-    "keywords": [<tối đa 2 từ khóa>]
+    "keywords": [<tối đa 2 từ khóa>],
+    "max_distance": <số km hoặc null>
   },
   "explanation": "<1-2 câu thân thiện, tham chiếu context cũ nếu có, giải thích sẽ tìm gì>"
 }
@@ -45,9 +48,26 @@ QUY TẮC PARSE:
 - "quán ăn" → vendor_type: "fixed_shop"
 - "gian hàng online" → vendor_type: "online_seller"
 - "gian hàng SV" → vendor_type: "student_booth"
+- "cách tôi 500m" → max_distance: 0.5
+- "cách tôi 1km" → max_distance: 1
+- "cách tôi 2km" → max_distance: 2
+- "gần tôi" → max_distance: 1
+- "gần nhất" → max_distance: null (không filter, chỉ sort theo khoảng cách)
 - Nếu có context từ tin trước → merge filters (giữ nguyên giá trị cũ, chỉ cập nhật field được nhắc tới)
 
 CHỈ trả về JSON thuần, không markdown, không giải thích thêm.`
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
 
 function isVendorOpen(openingHours: Record<string, string> | null): boolean {
   if (!openingHours) return false
@@ -104,7 +124,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { query, userId, sessionId, messages } = await req.json()
+    const { query, userId, sessionId, messages, userLat, userLng } = await req.json()
 
     if (!query?.trim()) {
       return new Response(
@@ -114,6 +134,7 @@ Deno.serve(async (req) => {
     }
 
     const history: ChatMessage[] = Array.isArray(messages) ? messages : []
+    const hasLocation = typeof userLat === 'number' && typeof userLng === 'number'
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -129,6 +150,7 @@ Deno.serve(async (req) => {
       min_rating: null as number | null,
       max_rating: null as number | null,
       keywords: [] as string[],
+      max_distance: null as number | null,
     }
     let explanation = 'Đây là các quán ăn mình tìm được cho bạn!'
 
@@ -156,11 +178,12 @@ Deno.serve(async (req) => {
         id, name, description, vendor_type, cover_image_url, logo_url,
         phone, zalo, address, area, opening_hours, has_delivery,
         price_range_min, price_range_max, food_categories,
+        latitude, longitude,
         reviews(rating)
       `)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
-      .limit(12)
+      .limit(20)
 
     if (filters.vendor_type) q = q.eq('vendor_type', filters.vendor_type)
     if (filters.has_ship === true) q = q.eq('has_delivery', true)
@@ -206,10 +229,53 @@ Deno.serve(async (req) => {
       vendors = vendors.filter((v: any) => v.rating_avg !== null && v.rating_avg <= filters.max_rating!)
     }
 
+    // ── Haversine distance ────────────────────────────────────────────────────
+    if (hasLocation) {
+      // Step 1: compute distance_km for each vendor
+      // deno-lint-ignore no-explicit-any
+      vendors = vendors.map((v: any) => ({
+        ...v,
+        distance_km: (v.latitude != null && v.longitude != null)
+          ? Math.round(haversineKm(userLat, userLng, v.latitude, v.longitude) * 10) / 10
+          : null,
+      }))
+
+      // Step 2: filter with 1.5x buffer if max_distance requested
+      if (filters.max_distance != null) {
+        const BUFFER = 1.5
+        let bufferDist = filters.max_distance * BUFFER
+        // deno-lint-ignore no-explicit-any
+        let filtered = vendors.filter((v: any) =>
+          v.distance_km === null || v.distance_km <= bufferDist
+        )
+        // Guarantee at least 3 results
+        while (filtered.length < 3 && bufferDist <= 10) {
+          bufferDist += 0.5
+          // deno-lint-ignore no-explicit-any
+          filtered = vendors.filter((v: any) =>
+            v.distance_km === null || v.distance_km <= bufferDist
+          )
+        }
+        vendors = filtered
+      }
+
+      // Step 3: sort by distance (nulls last)
+      // deno-lint-ignore no-explicit-any
+      vendors.sort((a: any, b: any) => {
+        if (a.distance_km === null) return 1
+        if (b.distance_km === null) return -1
+        return a.distance_km - b.distance_km
+      })
+    }
+
+    // Cap at 12 for response
+    vendors = vendors.slice(0, 12)
+
     void supabase.from('ai_search_logs').insert({
       user_id: userId ?? null,
       query,
       parsed_filters: filters,
+      // deno-lint-ignore no-explicit-any
       result_vendor_ids: vendors.map((v: any) => v.id),
       session_id: sessionId ?? null,
     })

@@ -140,4 +140,5 @@ export type VendorWithRating = {
   rating_avg: number | null
   rating_count: number
   is_open: boolean
+  distance_km?: number | null
 }
