@@ -2,108 +2,102 @@
 
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { LogoBrand } from '@/components/shared/LogoBrand'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2 } from 'lucide-react'
-
+import { useRouter } from 'next/navigation'
+import { Loader2, Mail, Lock, User, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
-const registerSchema = z.object({
-  full_name: z.string().min(2, 'Họ tên tối thiểu 2 ký tự').max(100),
-  email: z.string().min(1, 'Nhập email').includes('@', { message: 'Email không hợp lệ' }),
-  password: z
-    .string()
-    .min(8, 'Mật khẩu tối thiểu 8 ký tự')
-    .regex(/[A-Z]/, 'Cần ít nhất 1 chữ hoa')
-    .regex(/[0-9]/, 'Cần ít nhất 1 chữ số'),
-})
-type RegisterData = z.infer<typeof registerSchema>
-
-function RegisterForm() {
+export default function RegisterPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') ?? '/'
-
-  const [googleLoading, setGoogleLoading] = useState(false)
-  const [serverError, setServerError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterData>({ resolver: zodResolver(registerSchema) })
-
   const supabase = createClient()
 
-  async function onSubmit(data: RegisterData) {
-    setServerError(null)
-    const { data: signUpData, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+
+    if (!fullName.trim()) {
+      setError('Vui lòng nhập họ và tên.')
+      return
+    }
+    if (!email.trim()) {
+      setError('Vui lòng nhập email.')
+      return
+    }
+    if (!password.trim()) {
+      setError('Vui lòng nhập mật khẩu.')
+      return
+    }
+    if (password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
-        data: { full_name: data.full_name },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
+        data: { full_name: fullName.trim() },
       },
     })
-    if (error) {
-      const code = (error as any).code ?? ''
-      let msg = 'Đăng ký thất bại. Vui lòng thử lại.'
-      if (code === 'user_already_exists' || error.message.includes('already registered')) {
-        msg = 'Email này đã được đăng ký. Hãy đăng nhập.'
-      } else if (code === 'email_address_invalid') {
-        msg = 'Địa chỉ email không hợp lệ.'
-      } else if (code === 'weak_password') {
-        msg = 'Mật khẩu quá yếu. Hãy thêm ký tự đặc biệt hoặc tăng độ dài.'
-      } else if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit') {
-        msg = 'Hệ thống đang bận (giới hạn email). Vui lòng thử lại sau vài phút.'
+
+    if (signUpError) {
+      if (signUpError.message.includes('already')) {
+        setError('Email này đã được đăng ký. Bạn thử đăng nhập nhé.')
+      } else if (signUpError.message.includes('invalid')) {
+        setError('Email không hợp lệ.')
+      } else if (signUpError.message.includes('weak')) {
+        setError('Mật khẩu quá yếu. Vui lòng dùng mật khẩu mạnh hơn.')
+      } else if (signUpError.message.includes('rate')) {
+        setError('Quá nhiều yêu cầu. Vui lòng thử lại sau.')
+      } else {
+        setError('Đăng ký thất bại. Vui lòng thử lại.')
       }
-      setServerError(msg)
-      return
+    } else if (data.session) {
+      router.push('/')
+      router.refresh()
+    } else {
+      setSuccess(true)
     }
-    // Auto-confirm enabled → session available immediately → redirect
-    if (signUpData?.session) {
-      router.push(redirect)
-      return
-    }
-    setSuccess(true)
+
+    setLoading(false)
   }
 
-  async function signUpWithGoogle() {
+  async function signInWithGoogle() {
     setGoogleLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
-    if (error) {
-      setServerError('Không thể đăng ký với Google.')
+    if (oauthError) {
+      setError('Không thể đăng nhập với Google.')
       setGoogleLoading(false)
     }
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-sm animate-fade-in text-center">
-          <div className="w-14 h-14 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mx-auto mb-5">
-            <CheckCircle2 className="w-7 h-7 text-green-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-neutral-900">Kiểm tra email của bạn</h2>
-          <p className="mt-2 text-sm text-neutral-500 leading-relaxed">
-            Chúng tôi đã gửi link xác nhận đến email của bạn.
-            <br />
-            Nhấp vào link để hoàn tất đăng ký.
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+        <div className="w-full max-w-sm text-center">
+          <h2 className="text-xl font-semibold">Kiểm tra email của bạn</h2>
+          <p className="mt-2 text-sm text-neutral-500">
+            Chúng tôi đã gửi link xác nhận đến {email}
           </p>
-          <Button variant="outline" className="mt-6 w-full h-11" onClick={() => router.push('/login')}>
+          <Button className="mt-6 w-full" onClick={() => router.push('/login')}>
             Về trang đăng nhập
           </Button>
         </div>
@@ -114,19 +108,22 @@ function RegisterForm() {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm animate-fade-in">
-        {/* Logo */}
         <div className="text-center mb-8">
-          <LogoBrand />
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <span className="text-primary-foreground font-bold text-base">H</span>
+            </div>
+            <span className="text-xl font-semibold text-neutral-900">HolaMate</span>
+          </Link>
           <h1 className="mt-6 text-2xl font-semibold text-neutral-900">Tạo tài khoản</h1>
           <p className="mt-1.5 text-sm text-neutral-500">Miễn phí — dành cho sinh viên Hòa Lạc</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6 space-y-5">
-          {serverError && (
+          {error && (
             <div className="flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-200 px-3.5 py-3 text-sm text-red-700">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>{serverError}</span>
+              <span>{error}</span>
             </div>
           )}
 
@@ -134,8 +131,8 @@ function RegisterForm() {
             type="button"
             variant="outline"
             className="w-full h-11 gap-2.5 font-medium"
-            onClick={signUpWithGoogle}
-            disabled={googleLoading || isSubmitting}
+            onClick={signInWithGoogle}
+            disabled={googleLoading || loading}
           >
             {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
             Tiếp tục với Google
@@ -143,76 +140,77 @@ function RegisterForm() {
 
           <div className="flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs text-neutral-400 shrink-0">hoặc</span>
+            <span className="text-xs text-neutral-400">hoặc</span>
             <Separator className="flex-1" />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="full_name" className="text-sm font-medium text-neutral-700">Họ và tên</Label>
+              <Label className="text-sm font-medium text-neutral-700">Họ và tên</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input id="full_name" type="text" autoComplete="name" placeholder="Nguyễn Văn A" className="pl-9 h-11" {...register('full_name')} />
+                <Input
+                  type="text"
+                  placeholder="Nguyễn Văn A"
+                  className="pl-9 h-11"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
               </div>
-              {errors.full_name && <p className="text-xs text-red-500">{errors.full_name.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium text-neutral-700">Email</Label>
+              <Label className="text-sm font-medium text-neutral-700">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input id="email" type="email" autoComplete="email" placeholder="you@example.com" className="pl-9 h-11" {...register('email')} />
+                <Input
+                  type="text"
+                  placeholder="you@example.com"
+                  className="pl-9 h-11"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium text-neutral-700">Mật khẩu</Label>
+              <Label className="text-sm font-medium text-neutral-700">Mật khẩu</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input id="password" type="password" autoComplete="new-password" placeholder="Tối thiểu 8 ký tự" className="pl-9 h-11" {...register('password')} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-9 h-11"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
-              {errors.password
-                ? <p className="text-xs text-red-500">{errors.password.message}</p>
-                : <p className="text-xs text-neutral-400">Ít nhất 8 ký tự, 1 chữ hoa, 1 chữ số</p>
-              }
             </div>
 
-            <Button type="submit" className="w-full h-11 font-medium" disabled={isSubmitting || googleLoading}>
-              {isSubmitting
+            <Button type="submit" className="w-full h-11 font-medium" disabled={loading || googleLoading}>
+              {loading
                 ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Đang tạo tài khoản…</>
-                : 'Tạo tài khoản'
-              }
+                : 'Tạo tài khoản'}
             </Button>
           </form>
 
-          <p className="text-center text-xs text-neutral-400 leading-relaxed">
+          <p className="text-center text-xs text-neutral-400">
             Bằng cách đăng ký, bạn đồng ý với{' '}
-            <button className="underline underline-offset-2 hover:text-neutral-600">Điều khoản dịch vụ</button>{' '}
+            <Link href="/terms" className="underline hover:text-neutral-600">
+              Điều khoản dịch vụ
+            </Link>{' '}
             của HolaMate.
           </p>
         </div>
 
         <p className="mt-5 text-center text-sm text-neutral-500">
           Đã có tài khoản?{' '}
-          <Link href={`/login${redirect !== '/' ? `?redirect=${redirect}` : ''}`} className="font-medium text-primary hover:underline underline-offset-4">
+          <Link href="/login" className="font-medium text-primary hover:underline underline-offset-4">
             Đăng nhập
           </Link>
         </p>
       </div>
     </div>
-  )
-}
-
-export default function RegisterPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-neutral-400" />
-      </div>
-    }>
-      <RegisterForm />
-    </Suspense>
   )
 }
 
