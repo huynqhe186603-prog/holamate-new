@@ -91,7 +91,7 @@ export default async function HomePage() {
                 },
                 {
                   icon: Sparkles,
-                  title: 'Trợ lý AI thông minh',
+                  title: 'HolaMate AI',
                   desc: "Hỏi: 'Mình có 35k, muốn ăn cơm' — AI gợi ý quán phù hợp ngay",
                   href: '/ai',
                 },

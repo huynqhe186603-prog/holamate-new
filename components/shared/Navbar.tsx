@@ -11,7 +11,7 @@ import { NotificationBell } from '@/components/shared/NotificationBell'
 const NAV_LINKS = [
   { href: '/explore', label: 'Khám phá', icon: Utensils },
   { href: '/reviews', label: 'Review', icon: MessageSquare },
-  { href: '/ai', label: 'Trợ lý AI', icon: Sparkles },
+  { href: '/ai', label: 'HolaMate AI', icon: Sparkles },
 ]
 
 export async function Navbar() {
