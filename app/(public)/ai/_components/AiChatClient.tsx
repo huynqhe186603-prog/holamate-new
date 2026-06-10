@@ -182,7 +182,7 @@ export function AiChatClient() {
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Hỏi Mate về quán ăn, món ngon..."
+              placeholder="Hỏi HolaMate AI về quán ăn..."
               disabled={loading}
               className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 disabled:opacity-60 transition-colors"
             />
@@ -208,7 +208,7 @@ function WelcomeScreen({ onSuggestion }: { onSuggestion: (q: string) => void }) 
         <Sparkles className="w-7 h-7 text-amber-500" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-neutral-900">Xin chào! Mình là Mate 👋</h2>
+        <h2 className="text-xl font-semibold text-neutral-900">Xin chào! Tôi là HolaMate AI 👋</h2>
         <p className="text-sm text-neutral-500 max-w-xs leading-relaxed">
           Mình có thể giúp bạn tìm quán ăn phù hợp ở Hòa Lạc.
         </p>
