@@ -28,11 +28,12 @@ const SUGGESTIONS = [
 ]
 
 export function AiChatClient() {
-  const [messages, setMessages]         = useState<Message[]>([])
-  const [chatHistory, setChatHistory]   = useState<ChatHistoryItem[]>([])
-  const [input, setInput]               = useState('')
-  const [loading, setLoading]           = useState(false)
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [messages, setMessages]           = useState<Message[]>([])
+  const [chatHistory, setChatHistory]     = useState<ChatHistoryItem[]>([])
+  const [input, setInput]                 = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [userLocation, setUserLocation]   = useState<{ lat: number; lng: number } | null>(null)
+  const [sessionSummary, setSessionSummary] = useState<string>('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
   const supabase  = createClient()
@@ -46,6 +47,17 @@ export function AiChatClient() {
     )
   }, [])
 
+  // Summarize every 6 messages to keep context compact
+  useEffect(() => {
+    if (chatHistory.length === 0 || chatHistory.length % 6 !== 0) return
+    const slice = chatHistory.slice(-12)
+    supabase.functions.invoke('ai-assistant', {
+      body: { mode: 'summarize', messages: slice },
+    }).then(({ data }) => {
+      if (data?.summary) setSessionSummary(data.summary)
+    }).catch(() => {})
+  }, [chatHistory.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
@@ -54,6 +66,7 @@ export function AiChatClient() {
     setMessages([])
     setChatHistory([])
     setInput('')
+    setSessionSummary('')
     setTimeout(() => inputRef.current?.focus(), 50)
   }, [])
 
@@ -75,6 +88,7 @@ export function AiChatClient() {
           messages: newHistory,
           userLat: userLocation?.lat ?? null,
           userLng: userLocation?.lng ?? null,
+          sessionSummary,
         },
       })
 
@@ -102,7 +116,7 @@ export function AiChatClient() {
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-  }, [loading, chatHistory, supabase, userLocation])
+  }, [loading, chatHistory, supabase, userLocation, sessionSummary])
 
   const isEmpty = messages.length === 0
   const exchangeCount = Math.floor(chatHistory.length / 2)
