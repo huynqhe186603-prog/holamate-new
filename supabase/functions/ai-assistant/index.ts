@@ -327,14 +327,10 @@ async function queryByIntent(
 
   if (filters.vendor_type) q = q.eq('vendor_type', filters.vendor_type)
   if (intent === 'find_by_distance') q = q.eq('vendor_type', 'fixed_shop')
-  if (filters.has_ship === true) q = q.eq('has_delivery', true)
 
   if (filters.categories?.length > 0) {
-    const orClauses = filters.categories
-      .slice(0, 3)
-      .map((cat: string) => `food_categories.cs.{"${cat}"}`)
-      .join(',')
-    q = q.or(orClauses)
+    // overlaps (&&) matches vendors that have ANY of the requested categories
+    q = q.overlaps('food_categories', filters.categories.slice(0, 3))
   }
 
   if (filters.keywords?.length) {
@@ -364,15 +360,21 @@ async function queryByIntent(
     )
   }
 
+  // Ship filter — JS to avoid PostgREST operator conflict with overlaps()
+  if (filters.has_ship === true) {
+    // deno-lint-ignore no-explicit-any
+    vendors = vendors.filter((v: any) => v.has_delivery === true)
+  }
+
   if (filters.is_open_now === true) {
     // deno-lint-ignore no-explicit-any
     vendors = vendors.filter((v: any) => v.is_open)
   }
-  if (filters.min_rating !== null) {
+  if (filters.min_rating != null) {
     // deno-lint-ignore no-explicit-any
     vendors = vendors.filter((v: any) => v.rating_avg !== null && v.rating_avg >= filters.min_rating)
   }
-  if (filters.max_rating !== null) {
+  if (filters.max_rating != null) {
     // deno-lint-ignore no-explicit-any
     vendors = vendors.filter((v: any) => v.rating_avg !== null && v.rating_avg <= filters.max_rating)
   }
@@ -530,27 +532,27 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (Array.isArray(missing_fields) && missing_fields.length > 0) {
-      if (missing_fields.includes('vendor_name')) {
-        return new Response(
-          JSON.stringify({
-            explanation: 'Bạn muốn đặt tại quán nào? Cho tôi biết tên quán nhé!',
-            vendors: [],
-            filters: {},
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-        )
-      }
-      if (missing_fields.includes('gps') && !hasLocation) {
-        return new Response(
-          JSON.stringify({
-            explanation: 'Để tìm quán gần bạn, tôi cần biết vị trí của bạn. Vui lòng cho phép trình duyệt truy cập vị trí nhé!',
-            vendors: [],
-            filters: {},
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-        )
-      }
+    if (Array.isArray(missing_fields) && missing_fields.includes('vendor_name')) {
+      return new Response(
+        JSON.stringify({
+          explanation: 'Bạn muốn đặt tại quán nào? Cho tôi biết tên quán nhé!',
+          vendors: [],
+          filters: {},
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
+    // needs_gps check: independent of missing_fields (model may omit it from missing_fields)
+    if ((parsed.needs_gps === true || intent === 'find_by_distance') && !hasLocation) {
+      return new Response(
+        JSON.stringify({
+          explanation: 'Để tìm quán gần bạn, tôi cần biết vị trí của bạn. Vui lòng cho phép trình duyệt truy cập vị trí nhé!',
+          vendors: [],
+          filters: {},
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
     }
 
     // ── QUERY DB ────────────────────────────────────────────────────────────
@@ -614,6 +616,18 @@ Deno.serve(async (req) => {
 
     // ── GROQ CALL 2: Generate response ──────────────────────────────────────
     const vendors = dbResult.type === 'vendor_list' ? (dbResult.data as any[]) : [] // deno-lint-ignore no-explicit-any
+
+    // Guard: don't call Groq 2 if DB returned nothing — it will hallucinate
+    if (dbResult.type === 'vendor_list' && vendors.length === 0) {
+      return new Response(
+        JSON.stringify({
+          explanation: 'Không tìm thấy quán phù hợp với yêu cầu của bạn. Bạn thử điều chỉnh tiêu chí (bỏ bớt filter, tăng khoảng giá) nhé!',
+          vendors: [],
+          filters,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
 
     let explanation: string
     try {
