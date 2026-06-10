@@ -210,11 +210,11 @@ function WelcomeScreen({ onSuggestion }: { onSuggestion: (q: string) => void }) 
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-neutral-900">Xin chào! Tôi là HolaMate AI 👋</h2>
         <p className="text-sm text-neutral-500 max-w-xs leading-relaxed">
-          Mình có thể giúp bạn tìm quán ăn phù hợp ở Hòa Lạc.
+          Tôi có thể giúp bạn tìm quán ăn phù hợp ở Hòa Lạc.
         </p>
       </div>
       <div className="flex flex-col items-center gap-2 mt-1">
-        <p className="text-xs text-neutral-400 mb-1">Thử hỏi mình:</p>
+        <p className="text-xs text-neutral-400 mb-1">Thử hỏi tôi:</p>
         {SUGGESTIONS.map(s => (
           <button
             key={s}
