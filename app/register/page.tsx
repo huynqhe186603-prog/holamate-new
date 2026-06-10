@@ -45,7 +45,7 @@ function RegisterForm() {
 
   async function onSubmit(data: RegisterData) {
     setServerError(null)
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -54,11 +54,23 @@ function RegisterForm() {
       },
     })
     if (error) {
-      setServerError(
-        error.message.includes('already registered')
-          ? 'Email này đã được đăng ký. Hãy đăng nhập.'
-          : 'Đăng ký thất bại. Vui lòng thử lại.'
-      )
+      const code = (error as any).code ?? ''
+      let msg = 'Đăng ký thất bại. Vui lòng thử lại.'
+      if (code === 'user_already_exists' || error.message.includes('already registered')) {
+        msg = 'Email này đã được đăng ký. Hãy đăng nhập.'
+      } else if (code === 'email_address_invalid') {
+        msg = 'Địa chỉ email không hợp lệ.'
+      } else if (code === 'weak_password') {
+        msg = 'Mật khẩu quá yếu. Hãy thêm ký tự đặc biệt hoặc tăng độ dài.'
+      } else if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit') {
+        msg = 'Hệ thống đang bận (giới hạn email). Vui lòng thử lại sau vài phút.'
+      }
+      setServerError(msg)
+      return
+    }
+    // Auto-confirm enabled → session available immediately → redirect
+    if (signUpData?.session) {
+      router.push(redirect)
       return
     }
     setSuccess(true)
