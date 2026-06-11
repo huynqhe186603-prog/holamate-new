@@ -100,10 +100,10 @@ export default function PrivacyPolicyPage() {
               Nếu bạn có câu hỏi hoặc yêu cầu về quyền riêng tư, hãy liên hệ với chúng tôi qua email:
             </p>
             <a
-              href="mailto:holamate.contact@gmail.com"
+              href="mailto:huynqhe186603@fpt.edu.vn"
               className="mt-2 inline-block font-medium text-[#F97316] hover:underline underline-offset-4"
             >
-              holamate.contact@gmail.com
+              huynqhe186603@fpt.edu.vn
             </a>
           </Section>
         </div>
