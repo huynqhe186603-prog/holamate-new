@@ -3,26 +3,33 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { User, GraduationCap, ShoppingBag, MessageSquare, Bookmark } from 'lucide-react'
+import { Bookmark, GraduationCap, MessageSquare, Shield, ShoppingBag, Store, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const NAV_ITEMS = [
+const BASE_NAV = [
   { href: '/account', label: 'Hồ sơ', icon: User, exact: true },
+  { href: '/account/security', label: 'Bảo mật', icon: Shield, exact: false },
   { href: '/account/verify-student', label: 'Xác thực SV', icon: GraduationCap, exact: false },
   { href: '/account/orders', label: 'Đơn hàng', icon: ShoppingBag, exact: false },
   { href: '/account/reviews', label: 'Review của tôi', icon: MessageSquare, exact: false },
   { href: '/account/saved', label: 'Đã lưu', icon: Bookmark, exact: false },
-] as const
+]
 
 interface AccountNavProps {
   name: string | null
   avatarUrl: string | null
   isStudent: boolean
+  role: string | null
 }
 
-export function AccountNav({ name, avatarUrl, isStudent }: AccountNavProps) {
+export function AccountNav({ name, avatarUrl, isStudent, role }: AccountNavProps) {
   const pathname = usePathname()
   const initials = name?.[0]?.toUpperCase() ?? 'U'
+
+  const showBecomeSeller = role !== 'seller' && role !== 'admin'
+  const navItems = showBecomeSeller
+    ? [...BASE_NAV, { href: '/account/become-seller', label: 'Đăng ký bán hàng', icon: Store, exact: false }]
+    : BASE_NAV
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href)
@@ -53,7 +60,7 @@ export function AccountNav({ name, avatarUrl, isStudent }: AccountNavProps) {
 
       {/* Mobile: horizontal scroll tabs */}
       <div className="flex sm:hidden gap-1.5 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none mb-4">
-        {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
+        {navItems.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact)
           return (
             <Link
@@ -75,7 +82,7 @@ export function AccountNav({ name, avatarUrl, isStudent }: AccountNavProps) {
 
       {/* Desktop: vertical list */}
       <div className="hidden sm:flex flex-col gap-0.5">
-        {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
+        {navItems.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact)
           return (
             <Link

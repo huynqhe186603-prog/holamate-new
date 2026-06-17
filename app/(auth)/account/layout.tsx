@@ -9,7 +9,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, avatar_url, user_type')
+    .select('full_name, avatar_url, user_type, role')
     .eq('id', user.id)
     .single()
 
@@ -22,6 +22,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
             name={profile?.full_name ?? null}
             avatarUrl={profile?.avatar_url ?? null}
             isStudent={profile?.user_type === 'student_user'}
+            role={profile?.role ?? null}
           />
         </aside>
 
