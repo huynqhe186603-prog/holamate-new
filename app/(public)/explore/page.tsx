@@ -22,6 +22,7 @@ interface ExplorePageProps {
     max_price?: string
     open_now?: string
     has_delivery?: string
+    partnered?: string
     q?: string
     page?: string
   }
@@ -37,6 +38,7 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
   const maxPrice = searchParams.max_price ? Number(searchParams.max_price) : null
   const openNow = searchParams.open_now === 'true'
   const hasDelivery = searchParams.has_delivery === 'true'
+  const partneredOnly = searchParams.partnered === 'true'
   const category = searchParams.category ?? null
   // Sanitize: strip characters that could break PostgREST filter syntax
   const q = (searchParams.q ?? '').replace(/[,().%]/g, '').trim()
@@ -45,7 +47,7 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
     .from('vendors')
     .select(`
       id, name, description, vendor_type, cover_image_url, logo_url,
-      phone, zalo, address, area, opening_hours, has_delivery,
+      phone, zalo, address, area, opening_hours, has_delivery, is_partnered,
       price_range_min, price_range_max, food_categories,
       reviews(rating)
     `)
@@ -56,6 +58,7 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
 
   if (q) query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
   if (hasDelivery) query = query.eq('has_delivery', true)
+  if (partneredOnly) query = query.eq('is_partnered', true)
   if (maxPrice) query = query.lte('price_range_min', maxPrice)
   if (category) {
     if (Object.prototype.hasOwnProperty.call(CATEGORY_DB_MAP, category)) {
@@ -87,6 +90,7 @@ async function VendorGrid({ searchParams }: ExplorePageProps) {
       ...v,
       opening_hours: v.opening_hours as Record<string, string> | null,
       food_categories: v.food_categories as string[] | null,
+      is_partnered: Boolean(v.is_partnered),
       rating_avg: avg,
       rating_count: count,
       is_open: isVendorOpen(v.opening_hours as Record<string, string> | null),

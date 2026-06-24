@@ -917,6 +917,7 @@ export type Database = {
           food_categories: string[] | null
           has_delivery: boolean
           id: string
+          is_partnered: boolean
           latitude: number | null
           logo_url: string | null
           longitude: number | null
@@ -941,6 +942,7 @@ export type Database = {
           food_categories?: string[] | null
           has_delivery?: boolean
           id?: string
+          is_partnered?: boolean
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
@@ -965,6 +967,7 @@ export type Database = {
           food_categories?: string[] | null
           has_delivery?: boolean
           id?: string
+          is_partnered?: boolean
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { logAdminAction } from '@/lib/admin'
 import { cn } from '@/lib/utils'
-import { Check, X, EyeOff, Search, ChevronDown, ChevronUp, Flag } from 'lucide-react'
+import { Check, X, EyeOff, Search, ChevronDown, ChevronUp, Flag, Link2, Link2Off } from 'lucide-react'
 
 const STATUS_CFG: Record<string, { label: string; classes: string }> = {
   pending:   { label: 'Chờ duyệt', classes: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
@@ -63,7 +63,7 @@ export default function AdminVendorsPage() {
     setLoading(true)
     const { data } = await supabase
       .from('vendors')
-      .select('id, name, vendor_type, status, source, phone, address, description, cover_image_url, logo_url, food_categories, has_delivery, created_at, updated_at')
+      .select('id, name, vendor_type, status, source, phone, address, description, cover_image_url, logo_url, food_categories, has_delivery, is_partnered, created_at, updated_at')
       .order('created_at', { ascending: false })
     setVendors(data ?? [])
     setLoading(false)
@@ -115,6 +115,16 @@ export default function AdminVendorsPage() {
     if (search && !v.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
+
+  const togglePartnership = async (id: string, current: boolean) => {
+    const { error } = await supabase.from('vendors').update({ is_partnered: !current }).eq('id', id)
+    if (!error) {
+      setVendors(prev => prev.map(v => v.id === id ? { ...v, is_partnered: !current } : v))
+      await logAdminAction(supabase, adminId, 'vendor_partnership_toggled', 'vendors', id, { is_partnered: !current })
+    } else {
+      alert(error.message)
+    }
+  }
 
   const updateStatus = async (id: string, status: string) => {
     const prev = vendors.find(v => v.id === id)?.status
@@ -247,6 +257,18 @@ export default function AdminVendorsPage() {
                     </td>
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1.5">
+                        <Button
+                          size="sm" variant="outline"
+                          className={vendor.is_partnered
+                            ? 'h-7 px-2 gap-1 text-orange-600 border-orange-200 hover:bg-orange-50'
+                            : 'h-7 px-2 gap-1 text-neutral-500 border-neutral-200 hover:bg-neutral-50'}
+                          onClick={() => togglePartnership(vendor.id, vendor.is_partnered)}
+                          title={vendor.is_partnered ? 'Bỏ liên kết' : 'Đánh dấu Đối tác'}
+                        >
+                          {vendor.is_partnered
+                            ? <><Link2Off className="w-3.5 h-3.5" /> Bỏ ĐT</>
+                            : <><Link2 className="w-3.5 h-3.5" /> Đối tác</>}
+                        </Button>
                         {vendor.status !== 'active' && (
                           <Button
                             size="sm" variant="outline"

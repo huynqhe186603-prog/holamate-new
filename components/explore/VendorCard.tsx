@@ -58,6 +58,19 @@ export function VendorCard({ vendor, href }: VendorCardProps) {
           </span>
         </div>
 
+        {/* Partnership badge — bottom-left */}
+        <div className="absolute bottom-2.5 left-2.5">
+          {vendor.is_partnered ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500 text-white leading-tight shadow-sm">
+              ✓ Đối tác
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-neutral-800/60 text-neutral-300 leading-tight backdrop-blur-sm">
+              Chưa liên kết
+            </span>
+          )}
+        </div>
+
         {/* Status + ship — top-right */}
         <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 items-end">
           <span className={cn(
@@ -160,6 +173,19 @@ export function OnlineSellerCard({ vendor, href }: VendorCardProps) {
             Ship tận nơi
           </span>
         </div>
+
+        {/* Partnership badge — bottom-left */}
+        <div className="absolute bottom-2.5 left-2.5">
+          {vendor.is_partnered ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500 text-white leading-tight shadow-sm">
+              ✓ Đối tác
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-neutral-800/60 text-neutral-300 leading-tight backdrop-blur-sm">
+              Chưa liên kết
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="p-4 space-y-2">
@@ -239,6 +265,19 @@ export function BoothCard({ vendor, href }: VendorCardProps) {
             </span>
           </div>
         )}
+
+        {/* Partnership badge — bottom-left */}
+        <div className="absolute bottom-2.5 left-2.5">
+          {vendor.is_partnered ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500 text-white leading-tight shadow-sm">
+              ✓ Đối tác
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-neutral-800/60 text-neutral-300 leading-tight backdrop-blur-sm">
+              Chưa liên kết
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="p-4 space-y-2">

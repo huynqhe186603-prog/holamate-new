@@ -27,6 +27,7 @@ export function FilterBar() {
   const maxPriceParam = Number(searchParams.get('max_price') ?? SLIDER_MAX)
   const openNow = searchParams.get('open_now') === 'true'
   const hasDelivery = searchParams.get('has_delivery') === 'true'
+  const partneredOnly = searchParams.get('partnered') === 'true'
 
   // Local state for slider — update URL only on release
   const [sliderValue, setSliderValue] = useState(maxPriceParam)
@@ -59,11 +60,12 @@ export function FilterBar() {
     maxPriceParam < SLIDER_MAX ? 1 : 0,
     !isBoothMode && openNow ? 1 : 0,
     hasDelivery ? 1 : 0,
+    partneredOnly ? 1 : 0,
   ].reduce((a, b) => a + b, 0)
 
   const clearAll = () => {
     const params = new URLSearchParams(searchParams.toString())
-    ;['category', 'max_price', 'open_now', 'has_delivery', 'q', 'page'].forEach(k => params.delete(k))
+    ;['category', 'max_price', 'open_now', 'has_delivery', 'partnered', 'q', 'page'].forEach(k => params.delete(k))
     setSliderValue(SLIDER_MAX)
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: false })
@@ -157,7 +159,7 @@ export function FilterBar() {
       </div>
 
       {/* Toggles */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         {!isBoothMode && (
           <Toggle
             label="Đang mở"
@@ -171,6 +173,12 @@ export function FilterBar() {
           active={hasDelivery}
           onClick={() => toggleBool('has_delivery', hasDelivery)}
           color="blue"
+        />
+        <Toggle
+          label="Đối tác HolaMate"
+          active={partneredOnly}
+          onClick={() => toggleBool('partnered', partneredOnly)}
+          color="orange"
         />
       </div>
     </div>
@@ -186,12 +194,19 @@ function Toggle({
   label: string
   active: boolean
   onClick: () => void
-  color: 'emerald' | 'blue'
+  color: 'emerald' | 'blue' | 'orange'
 }) {
   const activeClass =
     color === 'emerald'
       ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-      : 'border-blue-500 bg-blue-50 text-blue-700'
+      : color === 'orange'
+        ? 'border-orange-500 bg-orange-50 text-orange-700'
+        : 'border-blue-500 bg-blue-50 text-blue-700'
+
+  const dotActive =
+    color === 'emerald' ? 'bg-emerald-500'
+    : color === 'orange' ? 'bg-orange-500'
+    : 'bg-blue-500'
 
   return (
     <button
@@ -201,12 +216,7 @@ function Toggle({
         active ? activeClass : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'
       )}
     >
-      <span className={cn(
-        'w-2 h-2 rounded-full',
-        active
-          ? color === 'emerald' ? 'bg-emerald-500' : 'bg-blue-500'
-          : 'bg-neutral-300'
-      )} />
+      <span className={cn('w-2 h-2 rounded-full', active ? dotActive : 'bg-neutral-300')} />
       {label}
     </button>
   )

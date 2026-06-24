@@ -42,7 +42,7 @@ export default async function VendorDetailPage({ params }: Props) {
   const { data: vendor } = await supabase
     .from('vendors')
     .select(`
-      id, name, description, vendor_type, status,
+      id, name, description, vendor_type, status, is_partnered,
       cover_image_url, logo_url, phone, zalo, address, area,
       latitude, longitude, opening_hours, has_delivery, delivery_note,
       price_range_min, price_range_max, food_categories,
@@ -142,7 +142,12 @@ export default async function VendorDetailPage({ params }: Props) {
               )}
               <div className="flex items-center gap-3 mt-2.5 flex-wrap">
                 <StarRating rating={ratingAvg} count={ratingCount} size="md" />
-                {vendor.has_delivery && (
+                {vendor.is_partnered ? (
+                  <span className="text-xs text-orange-600 font-semibold">✓ Đối tác HolaMate</span>
+                ) : (
+                  <span className="text-xs text-neutral-400 font-medium">Chưa liên kết</span>
+                )}
+                {vendor.has_delivery && vendor.is_partnered && (
                   <span className="flex items-center gap-1 text-xs text-blue-600 font-medium">
                     <Truck className="w-3.5 h-3.5" />
                     Có giao hàng
@@ -153,6 +158,14 @@ export default async function VendorDetailPage({ params }: Props) {
           </div>
         </div>
 
+        {/* Unpartnered notice banner */}
+        {!vendor.is_partnered && (
+          <div className="mt-4 bg-neutral-50 border border-neutral-200 rounded-xl p-4 text-sm text-neutral-600 flex gap-2.5">
+            <span className="shrink-0 mt-0.5">ℹ️</span>
+            <p>Quán này chưa liên kết với HolaMate. Thông tin được cộng đồng đóng góp. Bạn có thể xem review nhưng chưa thể đặt món trực tuyến.</p>
+          </div>
+        )}
+
         {/* Info section */}
         <div className="py-5 border-b border-neutral-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Address */}
@@ -162,16 +175,16 @@ export default async function VendorDetailPage({ params }: Props) {
               <CopyButton text={vendor.address ?? vendor.area ?? ''} />
             </InfoRow>
           )}
-          {/* Phone */}
-          {vendor.phone && (
+          {/* Phone — only for partnered vendors */}
+          {vendor.phone && vendor.is_partnered && (
             <InfoRow icon={<Phone className="w-4 h-4" />} label="Điện thoại">
               <a href={`tel:${vendor.phone}`} className="text-primary hover:underline">
                 {vendor.phone}
               </a>
             </InfoRow>
           )}
-          {/* Delivery note */}
-          {vendor.delivery_note && (
+          {/* Delivery note — only for partnered vendors */}
+          {vendor.delivery_note && vendor.is_partnered && (
             <InfoRow icon={<Truck className="w-4 h-4" />} label="Giao hàng">
               {vendor.delivery_note}
             </InfoRow>
@@ -191,12 +204,16 @@ export default async function VendorDetailPage({ params }: Props) {
           <h2 className="text-base font-bold text-neutral-900 mb-4">
             Menu ({menuItems.length} món)
           </h2>
-          <CartMenuSection
-            items={menuItems as any}
-            vendorId={vendor.id}
-            vendorName={vendor.name}
-            vendorType="fixed_shop"
-          />
+          {vendor.is_partnered ? (
+            <CartMenuSection
+              items={menuItems as any}
+              vendorId={vendor.id}
+              vendorName={vendor.name}
+              vendorType="fixed_shop"
+            />
+          ) : (
+            <MenuReadOnly items={menuItems as any} />
+          )}
         </div>
 
         {/* Reviews */}
@@ -229,8 +246,8 @@ export default async function VendorDetailPage({ params }: Props) {
         )}
       </div>
 
-      {/* Zalo CTA — desktop inline (cart button handles mobile) */}
-      {vendor.zalo && (
+      {/* Zalo CTA — desktop inline, partnered only */}
+      {vendor.zalo && vendor.is_partnered && (
         <div className="hidden sm:block mx-auto max-w-3xl px-4 sm:px-6 py-4 border-t border-neutral-100">
           <a
             href={`https://zalo.me/${vendor.zalo.replace(/^0/, '84')}`}
@@ -249,8 +266,8 @@ export default async function VendorDetailPage({ params }: Props) {
         <ReportVendorButton vendorId={vendor.id} />
       </div>
 
-      {/* Floating cart button */}
-      <CartButton vendorId={vendor.id} />
+      {/* Floating cart button — partnered only */}
+      {vendor.is_partnered && <CartButton vendorId={vendor.id} />}
     </div>
   )
 }
@@ -279,6 +296,25 @@ const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 const DAY_LABELS: Record<string, string> = {
   sun: 'Chủ nhật', mon: 'Thứ 2', tue: 'Thứ 3',
   wed: 'Thứ 4', thu: 'Thứ 5', fri: 'Thứ 6', sat: 'Thứ 7',
+}
+
+function MenuReadOnly({ items }: { items: { id: string; name: string; price: number; description: string | null; image_url: string | null; is_available: boolean }[] }) {
+  if (items.length === 0) return <p className="text-sm text-neutral-400">Chưa có món nào.</p>
+  return (
+    <div className="space-y-2">
+      {items.map(item => (
+        <div key={item.id} className={cn('flex items-center justify-between gap-3 rounded-xl border border-neutral-100 px-4 py-3', !item.is_available && 'opacity-50')}>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-neutral-800 truncate">{item.name}</p>
+            {item.description && <p className="text-xs text-neutral-400 truncate mt-0.5">{item.description}</p>}
+          </div>
+          <span className="shrink-0 text-sm font-semibold text-neutral-700">
+            {item.price.toLocaleString('vi-VN')}đ
+          </span>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function OpeningHoursTable({ openingHours }: { openingHours: Record<string, string> }) {

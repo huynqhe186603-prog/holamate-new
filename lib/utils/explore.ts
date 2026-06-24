@@ -134,6 +134,7 @@ export type VendorWithRating = {
   area: string | null
   opening_hours: Record<string, string> | null
   has_delivery: boolean
+  is_partnered: boolean
   price_range_min: number | null
   price_range_max: number | null
   food_categories: string[] | null
