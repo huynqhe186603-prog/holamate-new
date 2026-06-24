@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { CheckCircle2, ShoppingBag, ArrowRight, MessageCircle, Store } from 'lucide-react'
+import { CheckCircle2, ShoppingBag, ArrowRight, MessageCircle, Store, MapPin } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
@@ -25,7 +25,7 @@ async function SuccessContent({ orderId }: { orderId: string }) {
   const { data: order } = await supabase
     .from('orders')
     .select(`
-      id, status, fulfillment_method, buyer_name, buyer_phone, total_price, note, created_at,
+      id, status, fulfillment_method, buyer_name, buyer_phone, buyer_address, total_price, note, created_at,
       vendors(id, name, vendor_type, phone, zalo),
       order_items(id, item_name, item_price, quantity, subtotal)
     `)
@@ -94,6 +94,12 @@ async function SuccessContent({ orderId }: { orderId: string }) {
         <div className="flex items-center justify-between px-4 py-3 bg-neutral-50 border-t border-neutral-100">
           <div className="text-xs text-neutral-500 space-y-0.5">
             <p>{order.fulfillment_method === 'pickup' ? 'Tự đến lấy' : 'Quán giao'}</p>
+            {order.buyer_address && (
+              <p className="flex items-start gap-1 text-blue-700">
+                <MapPin className="w-3 h-3 shrink-0 mt-0.5" />
+                {order.buyer_address}
+              </p>
+            )}
             {order.note && <p className="italic">&ldquo;{order.note}&rdquo;</p>}
           </div>
           <div className="text-right">

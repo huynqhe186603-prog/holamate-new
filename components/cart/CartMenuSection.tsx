@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Plus, Minus, Trash2 } from 'lucide-react'
+import { Plus, Minus, Trash2, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCart } from '@/components/cart/CartContext'
 import { formatVND } from '@/lib/cart'
@@ -31,9 +31,10 @@ interface CartMenuSectionProps {
   vendorId: string
   vendorName: string
   vendorType: 'fixed_shop' | 'student_booth'
+  isOpen?: boolean
 }
 
-export function CartMenuSection({ items, vendorId, vendorName, vendorType }: CartMenuSectionProps) {
+export function CartMenuSection({ items, vendorId, vendorName, vendorType, isOpen = true }: CartMenuSectionProps) {
   const { cart, addItem, updateQuantity } = useCart()
   const today = new Date().toISOString().split('T')[0]
 
@@ -55,6 +56,13 @@ export function CartMenuSection({ items, vendorId, vendorName, vendorType }: Car
 
   return (
     <div>
+      {/* Closed warning — shown when vendor is not currently open */}
+      {!isOpen && (
+        <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 mb-4 text-sm text-amber-800">
+          <Clock className="w-4 h-4 shrink-0 mt-0.5" />
+          <p>Quán đang đóng cửa. Bạn vẫn có thể chọn món — đơn sẽ được xử lý khi quán mở cửa trở lại.</p>
+        </div>
+      )}
       {/* Type tabs */}
       {types.length > 1 && (
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">

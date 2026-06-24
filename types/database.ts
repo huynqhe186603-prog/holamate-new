@@ -294,6 +294,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          buyer_address: string | null
           buyer_name: string
           buyer_phone: string
           created_at: string
@@ -307,6 +308,7 @@ export type Database = {
           vendor_id: string
         }
         Insert: {
+          buyer_address?: string | null
           buyer_name: string
           buyer_phone: string
           created_at?: string
@@ -320,6 +322,7 @@ export type Database = {
           vendor_id: string
         }
         Update: {
+          buyer_address?: string | null
           buyer_name?: string
           buyer_phone?: string
           created_at?: string

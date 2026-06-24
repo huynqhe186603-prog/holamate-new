@@ -210,6 +210,7 @@ export default async function VendorDetailPage({ params }: Props) {
               vendorId={vendor.id}
               vendorName={vendor.name}
               vendorType="fixed_shop"
+              isOpen={isOpen}
             />
           ) : (
             <MenuReadOnly items={menuItems as any} />

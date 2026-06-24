@@ -26,10 +26,15 @@ export function CheckoutForm({
   const { cart, updateQuantity, clearCart } = useCart()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<{ buyer_name?: string; buyer_phone?: string }>({})
+  const [errors, setErrors] = useState<{
+    buyer_name?: string
+    buyer_phone?: string
+    buyer_address?: string
+  }>({})
 
   const [buyerName, setBuyerName] = useState(initialName ?? '')
   const [buyerPhone, setBuyerPhone] = useState(initialPhone ?? '')
+  const [buyerAddress, setBuyerAddress] = useState('')
   const [note, setNote] = useState('')
   const [fulfillmentMethod, setFulfillmentMethod] = useState<'pickup' | 'seller_delivery'>('pickup')
 
@@ -46,9 +51,13 @@ export function CheckoutForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const newErrors: { buyer_name?: string; buyer_phone?: string } = {}
-    if (!buyerName.trim() || buyerName.trim().length < 2) newErrors.buyer_name = 'Nhập họ tên (tối thiểu 2 ký tự)'
-    if (!buyerPhone.trim() || !/^(0|\+84)[0-9]{8,9}$/.test(buyerPhone.trim())) newErrors.buyer_phone = 'Số điện thoại không hợp lệ (VD: 0912345678)'
+    const newErrors: typeof errors = {}
+    if (!buyerName.trim() || buyerName.trim().length < 2)
+      newErrors.buyer_name = 'Nhập họ tên (tối thiểu 2 ký tự)'
+    if (!buyerPhone.trim() || !/^(0|\+84)[0-9]{8,9}$/.test(buyerPhone.trim()))
+      newErrors.buyer_phone = 'Số điện thoại không hợp lệ (VD: 0912345678)'
+    if (fulfillmentMethod === 'seller_delivery' && !buyerAddress.trim())
+      newErrors.buyer_address = 'Vui lòng nhập địa chỉ giao hàng'
     setErrors(newErrors)
     if (Object.keys(newErrors).length > 0) return
 
@@ -68,6 +77,7 @@ export function CheckoutForm({
         note: note.trim() || null,
         buyer_name: buyerName.trim(),
         buyer_phone: buyerPhone.trim(),
+        buyer_address: fulfillmentMethod === 'seller_delivery' ? buyerAddress.trim() : null,
         total_price: total,
       })
       .select('id')
@@ -158,6 +168,32 @@ export function CheckoutForm({
         </div>
       </div>
 
+      {/* Fulfillment method — choose first to show/hide address */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4 space-y-3 mb-4">
+        <h2 className="text-sm font-semibold text-neutral-800">Hình thức nhận món</h2>
+        {[
+          { value: 'pickup', label: 'Tự đến lấy', desc: 'Đến trực tiếp nhận tại quán/điểm hẹn' },
+          ...(hasDelivery ? [{ value: 'seller_delivery', label: 'Quán/người bán giao', desc: 'Quán hoặc người bán tự giao tới bạn' }] : []),
+        ].map(opt => (
+          <label
+            key={opt.value}
+            className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors hover:border-primary/40 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+          >
+            <input
+              type="radio"
+              value={opt.value}
+              checked={fulfillmentMethod === opt.value}
+              onChange={() => setFulfillmentMethod(opt.value as 'pickup' | 'seller_delivery')}
+              className="mt-0.5 accent-primary shrink-0"
+            />
+            <div>
+              <p className="text-sm font-medium text-neutral-800">{opt.label}</p>
+              <p className="text-xs text-neutral-500 mt-0.5">{opt.desc}</p>
+            </div>
+          </label>
+        ))}
+      </div>
+
       {/* Order form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 space-y-4">
@@ -177,6 +213,22 @@ export function CheckoutForm({
             {errors.buyer_phone && <p className="text-xs text-red-500">{errors.buyer_phone}</p>}
           </div>
 
+          {/* Delivery address — only shown when seller_delivery */}
+          {fulfillmentMethod === 'seller_delivery' && (
+            <div className="space-y-1.5">
+              <Label htmlFor="buyer_address" className="text-sm font-medium text-neutral-700">Địa chỉ giao hàng *</Label>
+              <Input
+                id="buyer_address"
+                type="text"
+                placeholder="VD: Phòng A3-412, KTX ĐHQG Hòa Lạc"
+                className="h-11"
+                value={buyerAddress}
+                onChange={e => { setBuyerAddress(e.target.value); setErrors(v => ({ ...v, buyer_address: undefined })) }}
+              />
+              {errors.buyer_address && <p className="text-xs text-red-500">{errors.buyer_address}</p>}
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label htmlFor="note" className="text-sm font-medium text-neutral-700">Ghi chú (tùy chọn)</Label>
             <textarea
@@ -191,32 +243,6 @@ export function CheckoutForm({
           </div>
         </div>
 
-        {/* Fulfillment method */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-4 space-y-3">
-          <h2 className="text-sm font-semibold text-neutral-800">Hình thức nhận món</h2>
-          {[
-            { value: 'pickup', label: 'Tự đến lấy', desc: 'Đến trực tiếp nhận tại quán/điểm hẹn' },
-            ...(hasDelivery ? [{ value: 'seller_delivery', label: 'Quán/người bán giao', desc: 'Quán hoặc người bán tự giao tới bạn' }] : []),
-          ].map(opt => (
-            <label
-              key={opt.value}
-              className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors hover:border-primary/40 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-            >
-              <input
-                type="radio"
-                value={opt.value}
-                checked={fulfillmentMethod === opt.value}
-                onChange={() => setFulfillmentMethod(opt.value as 'pickup' | 'seller_delivery')}
-                className="mt-0.5 accent-primary shrink-0"
-              />
-              <div>
-                <p className="text-sm font-medium text-neutral-800">{opt.label}</p>
-                <p className="text-xs text-neutral-500 mt-0.5">{opt.desc}</p>
-              </div>
-            </label>
-          ))}
-        </div>
-
         {submitError && (
           <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-3.5 py-3">{submitError}</p>
         )}
@@ -227,7 +253,7 @@ export function CheckoutForm({
           className="w-full h-12 text-base font-semibold gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSubmitting ? 'Đang gử…' : `Xác nhận đặt món · ${formatVND(total)}`}
+          {isSubmitting ? 'Đang gửi…' : `Xác nhận đặt món · ${formatVND(total)}`}
         </Button>
       </form>
     </div>

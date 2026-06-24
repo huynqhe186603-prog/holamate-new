@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Store, GraduationCap, ShoppingBag, ArrowRight } from 'lucide-react'
+import { Store, GraduationCap, ShoppingBag, ArrowRight, MapPin } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
@@ -9,7 +9,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = { title: 'Đơn hàng của tôi' }
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
-  submitted:  { label: 'Đã gửi',       classes: 'bg-blue-100 text-blue-700 border-blue-200' },
+  submitted:  { label: 'Chờ xác nhận', classes: 'bg-blue-100 text-blue-700 border-blue-200' },
   confirmed:  { label: 'Đã xác nhận',  classes: 'bg-amber-100 text-amber-700 border-amber-200' },
   completed:  { label: 'Hoàn thành',   classes: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   cancelled:  { label: 'Đã hủy',       classes: 'bg-red-100 text-red-700 border-red-200' },
@@ -28,7 +28,7 @@ export default async function OrdersPage() {
   const { data: orders } = await supabase
     .from('orders')
     .select(`
-      id, status, fulfillment_method, buyer_name, total_price, note, created_at,
+      id, status, fulfillment_method, buyer_name, buyer_address, total_price, note, created_at,
       vendors(id, name, vendor_type),
       order_items(id, item_name, item_price, quantity, subtotal)
     `)
@@ -105,16 +105,25 @@ function OrderCard({ order }: { order: any }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-neutral-50 border-t border-neutral-100">
-        <div className="space-y-0.5">
-          <p className="text-xs text-neutral-400">{date} · {FULFILLMENT[order.fulfillment_method] ?? ''}</p>
-          {order.note && <p className="text-xs text-neutral-500 italic">&ldquo;{order.note}&rdquo;</p>}
-        </div>
-        <div className="text-right shrink-0">
-          <p className="text-xs text-neutral-400 mb-0.5">Tổng cộng</p>
-          <p className="text-sm font-bold text-primary">
-            {(order.total_price / 1000).toFixed(0)}k
-          </p>
+      <div className="px-4 py-3 bg-neutral-50 border-t border-neutral-100 space-y-2">
+        {/* Delivery address */}
+        {order.buyer_address && (
+          <div className="flex items-start gap-1.5 text-xs text-blue-700">
+            <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>{order.buyer_address}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <p className="text-xs text-neutral-400">{date} · {FULFILLMENT[order.fulfillment_method] ?? ''}</p>
+            {order.note && <p className="text-xs text-neutral-500 italic">&ldquo;{order.note}&rdquo;</p>}
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-xs text-neutral-400 mb-0.5">Tổng cộng</p>
+            <p className="text-sm font-bold text-primary">
+              {(order.total_price / 1000).toFixed(0)}k
+            </p>
+          </div>
         </div>
       </div>
     </div>
