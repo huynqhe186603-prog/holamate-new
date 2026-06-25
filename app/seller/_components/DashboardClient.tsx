@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { formatVND } from '@/lib/utils/formatters'
 import { StarRating } from '@/components/explore/StarRating'
 import {
   ShoppingBag, TrendingUp, Package, Clock, CheckCircle2,
@@ -26,6 +27,9 @@ interface DashboardClientProps {
   vendorIds: string[]
   initialOrders: Order[]
   initialReviews: Review[]
+  initialTodayRevenue: number
+  initialTodayItems: number
+  initialNewOrders: number
 }
 
 const STATUS_CFG: Record<string, { label: string; icon: React.ReactNode; classes: string }> = {
@@ -35,28 +39,21 @@ const STATUS_CFG: Record<string, { label: string; icon: React.ReactNode; classes
   cancelled:  { label: 'Đã hủy',       icon: <XCircle className="w-3 h-3" />,      classes: 'bg-red-100 text-red-700 border-red-200' },
 }
 
-function formatVND(n: number) { return n >= 1000 ? `${Math.round(n / 1000)}k` : `${n}đ` }
 function formatTime(d: string) {
-  const dt = new Date(d)
-  return dt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+  return new Date(d).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function DashboardClient({ vendorIds, initialOrders, initialReviews }: DashboardClientProps) {
+export function DashboardClient({
+  vendorIds, initialOrders, initialReviews,
+  initialTodayRevenue, initialTodayItems, initialNewOrders,
+}: DashboardClientProps) {
   const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [todayRevenue, setTodayRevenue] = useState(initialTodayRevenue)
+  const [todayItems] = useState(initialTodayItems)
+  const [newOrders, setNewOrders] = useState(initialNewOrders)
   const [newOrderAlert, setNewOrderAlert] = useState<string | null>(null)
   const supabase = createClient()
 
-  const today = new Date().toISOString().split('T')[0]
-  const todayOrders = orders.filter(o => o.created_at.startsWith(today))
-  const todayRevenue = todayOrders
-    .filter(o => o.status !== 'cancelled')
-    .reduce((s, o) => s + o.total_price, 0)
-  const todayItems = todayOrders
-    .filter(o => o.status !== 'cancelled')
-    .reduce((s, o) => s + o.order_items.reduce((q, i) => q + i.quantity, 0), 0)
-  const newOrders = todayOrders.filter(o => o.status === 'submitted').length
-
-  // Realtime: listen for new orders across all vendor IDs
   useEffect(() => {
     if (!vendorIds.length) return
     const channels = vendorIds.map(vid =>
@@ -70,6 +67,11 @@ export function DashboardClient({ vendorIds, initialOrders, initialReviews }: Da
           setOrders(prev => [newOrder, ...prev].slice(0, 10))
           setNewOrderAlert(newOrder.buyer_name ?? 'Đơn mới')
           setTimeout(() => setNewOrderAlert(null), 5000)
+          // Update today stats from realtime (new orders always come in as 'submitted')
+          if (newOrder.status !== 'cancelled') {
+            setTodayRevenue(prev => prev + Number(newOrder.total_price || 0))
+            setNewOrders(prev => prev + 1)
+          }
         })
         .subscribe()
     )
@@ -78,7 +80,6 @@ export function DashboardClient({ vendorIds, initialOrders, initialReviews }: Da
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* New order toast */}
       {newOrderAlert && (
         <div className="fixed top-20 right-4 z-50 flex items-center gap-3 bg-neutral-900 text-white px-4 py-3 rounded-2xl shadow-xl animate-fade-in">
           <Bell className="w-4 h-4 text-primary shrink-0" />
@@ -89,7 +90,7 @@ export function DashboardClient({ vendorIds, initialOrders, initialReviews }: Da
         </div>
       )}
 
-      {/* Stats cards */}
+      {/* Stats — computed from accurate server-side today query */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <StatCard icon={<ShoppingBag className="w-5 h-5 text-blue-600" />} label="Đơn mới hôm nay" value={newOrders} bg="bg-blue-50 border-blue-100" />
         <StatCard icon={<TrendingUp className="w-5 h-5 text-emerald-600" />} label="Doanh thu ước tính" value={formatVND(todayRevenue)} bg="bg-emerald-50 border-emerald-100" />
@@ -147,9 +148,9 @@ export function DashboardClient({ vendorIds, initialOrders, initialReviews }: Da
                 {review.content && (
                   <p className="text-xs text-neutral-600 leading-relaxed line-clamp-2">{review.content}</p>
                 )}
-                <p className="text-[10px] text-neutral-400 mt-1.5">{review.vendors?.name} · {
-                  new Date(review.created_at).toLocaleDateString('vi-VN')
-                }</p>
+                <p className="text-[10px] text-neutral-400 mt-1.5">
+                  {review.vendors?.name} · {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                </p>
               </div>
             ))}
           </div>
