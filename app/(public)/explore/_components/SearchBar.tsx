@@ -4,6 +4,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { trackEvent } from '@/lib/analytics'
 
 const PLACEHOLDERS: Record<string, string> = {
   fixed_shop:    'Tìm tên quán, số điện thoại...',
@@ -30,6 +31,7 @@ export function SearchBar() {
     const params = new URLSearchParams(searchParams.toString())
     if (q.trim()) {
       params.set('q', q.trim())
+      trackEvent({ event_type: 'search', event_data: { query: q.trim().slice(0, 100) } })
     } else {
       params.delete('q')
     }

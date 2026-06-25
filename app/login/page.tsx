@@ -7,6 +7,7 @@ import { LogoBrand } from '@/components/shared/LogoBrand'
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/client'
+import { trackLogin } from '@/lib/analytics'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,10 +37,13 @@ function LoginForm() {
     }
     setLoading(true)
     setError(null)
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
     if (authError) {
       setError('Email hoặc mật khẩu không đúng.')
     } else {
+      if (authData.user) {
+        trackLogin({ user_id: authData.user.id, event_type: 'sign_in', provider: 'email' })
+      }
       router.push(redirect)
       router.refresh()
     }

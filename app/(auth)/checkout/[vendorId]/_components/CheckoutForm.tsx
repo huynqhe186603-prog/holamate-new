@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Plus, Minus, Trash2, Loader2, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { trackEvent } from '@/lib/analytics'
 import { useCart } from '@/components/cart/CartContext'
 import { formatVND, cartTotal } from '@/lib/cart'
 import { Input } from '@/components/ui/input'
@@ -97,6 +98,15 @@ export function CheckoutForm({
     )
     if (itemsErr) { setSubmitError('Lỗi khi lưu món. Thử lại.'); setIsSubmitting(false); return }
 
+    trackEvent({
+      event_type: 'checkout',
+      event_data: {
+        vendor_id: vendorId,
+        vendor_name: vendorName,
+        total_amount: total,
+        item_count: items.length,
+      },
+    })
     clearCart()
     router.push(`/checkout/success?orderId=${order.id}`)
   }

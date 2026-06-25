@@ -25,8 +25,20 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      if (data.user) {
+        const isNew = new Date(data.user.created_at).getTime() > Date.now() - 10_000
+        await fetch(`${origin}/api/analytics/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: data.user.id,
+            event_type: isNew ? 'sign_up' : 'sign_in',
+            provider: 'google',
+          }),
+        }).catch(() => {})
+      }
       return NextResponse.redirect(`${origin}${redirect}`)
     }
   }

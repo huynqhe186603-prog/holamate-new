@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, Bot, Sparkles, RotateCcw, X, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { trackEvent } from '@/lib/analytics'
 import { VendorCard, BoothCard, OnlineSellerCard } from '@/components/explore/VendorCard'
 import type { VendorWithRating } from '@/lib/utils/explore'
 
@@ -80,6 +81,7 @@ export function AiChatClient() {
     setChatHistory(prev => ([...prev, { role: 'user' as const, content: q }] as ChatHistoryItem[]).slice(-20))
     setInput('')
     setLoading(true)
+    trackEvent({ event_type: 'use_ai', event_data: { query: q.slice(0, 100) } })
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-assistant', {

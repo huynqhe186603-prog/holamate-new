@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Store, Star, Users, ImageIcon,
-  GraduationCap, ShoppingBag, LogOut,
+  GraduationCap, ShoppingBag, LogOut, BarChart2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -18,6 +18,7 @@ const NAV = [
   { href: '/admin/media',         label: 'Media',        icon: ImageIcon,       exact: false },
   { href: '/admin/verifications', label: 'Xác thực SV',  icon: GraduationCap,   exact: false },
   { href: '/admin/orders',        label: 'Orders',       icon: ShoppingBag,     exact: false },
+  { href: '/admin/analytics',    label: 'Analytics',    icon: BarChart2,       exact: false },
 ] as const
 
 interface AdminNavProps { name: string | null; avatarUrl: string | null }

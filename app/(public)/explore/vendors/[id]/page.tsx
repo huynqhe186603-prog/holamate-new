@@ -13,6 +13,7 @@ import { isVendorOpen } from '@/lib/utils/explore'
 import { VietMapView } from '@/components/shared/VietMapView'
 import { CopyButton } from '@/components/shared/CopyButton'
 import { ReportVendorButton } from '@/components/shared/ReportVendorButton'
+import { ViewVendorTracker } from './_components/ViewVendorTracker'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, UtensilsCrossed,
 } from 'lucide-react'
@@ -84,6 +85,7 @@ export default async function VendorDetailPage({ params }: Props) {
 
   return (
     <div className="pb-28 sm:pb-0">
+      <ViewVendorTracker vendorId={vendor.id} vendorName={vendor.name} />
       {/* Back nav */}
       <div className="mx-auto max-w-3xl px-4 sm:px-6 pt-4">
         <Link

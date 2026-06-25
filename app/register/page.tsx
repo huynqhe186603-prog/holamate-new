@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Loader2, Mail, Lock, User, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { trackLogin } from '@/lib/analytics'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -65,11 +66,16 @@ export default function RegisterPage() {
       } else {
         setError('Đăng ký thất bại. Vui lòng thử lại.')
       }
-    } else if (data.session) {
-      router.push('/')
-      router.refresh()
     } else {
-      setSuccess(true)
+      if (data.user) {
+        trackLogin({ user_id: data.user.id, event_type: 'sign_up', provider: 'email' })
+      }
+      if (data.session) {
+        router.push('/')
+        router.refresh()
+      } else {
+        setSuccess(true)
+      }
     }
 
     setLoading(false)
