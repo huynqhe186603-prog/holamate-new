@@ -230,7 +230,7 @@ export default function SellerVendorsPage() {
     input.type = 'file'; input.accept = 'image/*'
     input.onchange = async () => {
       const file = input.files?.[0]; if (!file) return
-      const path = `vendor-images/vendors/${selectedVendor.id}/${kind}.jpg`
+      const path = `vendors/${selectedVendor.id}/${kind}.jpg`
       const { error: uploadError } = await supabase.storage.from('vendor-images').upload(path, file, { upsert: true })
       if (uploadError) { alert(uploadError.message); return }
       const { data: { publicUrl } } = supabase.storage.from('vendor-images').getPublicUrl(path)
@@ -251,7 +251,7 @@ export default function SellerVendorsPage() {
     input.type = 'file'; input.accept = 'image/*'
     input.onchange = async () => {
       const file = input.files?.[0]; if (!file) return
-      const path = `vendor-images/vendors/${selectedVendor.id}/gallery/${Date.now()}_${file.name}`
+      const path = `vendors/${selectedVendor.id}/gallery/${Date.now()}_${file.name}`
       const { error: uploadError } = await supabase.storage.from('vendor-images').upload(path, file, { upsert: true })
       if (uploadError) { alert(uploadError.message); return }
       const { data: { publicUrl } } = supabase.storage.from('vendor-images').getPublicUrl(path)
