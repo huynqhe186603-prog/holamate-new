@@ -41,3 +41,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sensitive local files — do NOT commit
+seller_accounts.txt
+client_secret_*.json
+database_ready*.json
+*.xlsx
