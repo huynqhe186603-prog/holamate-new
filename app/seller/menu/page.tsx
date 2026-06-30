@@ -174,7 +174,7 @@ export default function SellerMenuPage() {
     const { error } = await supabase.from('menu_items').delete().eq('id', item.id)
     if (error) { alert(error.message); return }
     supabase.storage.from('menu-item-images')
-      .remove([`menu-item-images/vendors/${selectedVendorId}/items/${item.id}/main.jpg`])
+      .remove([`vendors/${selectedVendorId}/items/${item.id}/main.jpg`])
     setItems(prev => prev.filter(i => i.id !== item.id))
     showToast('Đã xóa món')
   }
@@ -194,7 +194,7 @@ export default function SellerMenuPage() {
     input.type = 'file'; input.accept = 'image/*'
     input.onchange = async () => {
       const file = input.files?.[0]; if (!file) return
-      const path = `menu-item-images/vendors/${selectedVendorId}/items/${item.id}/main.jpg`
+      const path = `vendors/${selectedVendorId}/items/${item.id}/main.jpg`
       const { error: uploadError } = await supabase.storage.from('menu-item-images').upload(path, file, { upsert: true })
       if (uploadError) { alert(uploadError.message); return }
       const { data: { publicUrl } } = supabase.storage.from('menu-item-images').getPublicUrl(path)
