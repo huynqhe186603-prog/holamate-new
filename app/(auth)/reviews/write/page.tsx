@@ -11,6 +11,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { StarPicker } from '@/components/reviews/StarPicker'
 import { cn } from '@/lib/utils'
+import { trackEvent } from '@/lib/analytics'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -161,6 +162,15 @@ function WriteReviewForm() {
       }
     }
 
+    trackEvent({
+      event_type: 'write_review',
+      event_data: {
+        vendor_id: selectedVendor.id,
+        vendor_name: selectedVendor.name,
+        review_type: reviewType,
+        rating,
+      },
+    })
     setSuccess(true)
     setSubmitting(false)
   }

@@ -1,7 +1,8 @@
 export type EventType =
-  | 'page_view' | 'search' | 'view_vendor'
+  | 'page_view' | 'search' | 'view_vendor' | 'view_menu' | 'click_contact'
   | 'add_to_cart' | 'checkout' | 'write_review'
   | 'use_ai' | 'filter' | 'sign_up' | 'sign_in'
+  | 'session_start' | 'session_heartbeat' | 'session_end'
 
 export interface TrackEventPayload {
   event_type: EventType

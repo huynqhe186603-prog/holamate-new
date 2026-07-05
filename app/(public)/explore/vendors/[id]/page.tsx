@@ -14,6 +14,8 @@ import { VietMapView } from '@/components/shared/VietMapView'
 import { CopyButton } from '@/components/shared/CopyButton'
 import { ReportVendorButton } from '@/components/shared/ReportVendorButton'
 import { ViewVendorTracker } from './_components/ViewVendorTracker'
+import { ContactLink } from './_components/ContactLink'
+import { MenuViewTracker } from './_components/MenuViewTracker'
 import {
   ArrowLeft, MapPin, Phone, Clock, Truck, MessageCircle, UtensilsCrossed,
 } from 'lucide-react'
@@ -180,9 +182,15 @@ export default async function VendorDetailPage({ params }: Props) {
           {/* Phone — only for partnered vendors */}
           {vendor.phone && vendor.is_partnered && (
             <InfoRow icon={<Phone className="w-4 h-4" />} label="Điện thoại">
-              <a href={`tel:${vendor.phone}`} className="text-primary hover:underline">
+              <ContactLink
+                href={`tel:${vendor.phone}`}
+                vendorId={vendor.id}
+                vendorName={vendor.name}
+                contactType="phone"
+                className="text-primary hover:underline"
+              >
                 {vendor.phone}
-              </a>
+              </ContactLink>
             </InfoRow>
           )}
           {/* Delivery note — only for partnered vendors */}
@@ -203,6 +211,7 @@ export default async function VendorDetailPage({ params }: Props) {
 
         {/* Menu */}
         <div className="py-6 border-b border-neutral-100">
+          <MenuViewTracker vendorId={vendor.id} vendorName={vendor.name} />
           <h2 className="text-base font-bold text-neutral-900 mb-4">
             Menu ({menuItems.length} món)
           </h2>
@@ -252,15 +261,18 @@ export default async function VendorDetailPage({ params }: Props) {
       {/* Zalo CTA — desktop inline, partnered only */}
       {vendor.zalo && vendor.is_partnered && (
         <div className="hidden sm:block mx-auto max-w-3xl px-4 sm:px-6 py-4 border-t border-neutral-100">
-          <a
+          <ContactLink
             href={`https://zalo.me/${vendor.zalo.replace(/^0/, '84')}`}
+            vendorId={vendor.id}
+            vendorName={vendor.name}
+            contactType="zalo"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(buttonVariants({ variant: 'outline' }), 'h-10 gap-2 font-medium')}
           >
             <MessageCircle className="w-4 h-4 text-blue-500" />
             Liên hệ Zalo
-          </a>
+          </ContactLink>
         </div>
       )}
 
