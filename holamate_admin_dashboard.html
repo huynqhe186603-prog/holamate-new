@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HolaMate — Admin Analytics</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #F97316;
+    --orange-light: #FFF7ED;
+    --orange-dim: #FB923C;
+    --bg: #F8F9FB;
+    --surface: #FFFFFF;
+    --border: #E9ECF0;
+    --text: #111827;
+    --muted: #6B7280;
+    --green: #10B981;
+    --blue: #3B82F6;
+    --purple: #8B5CF6;
+    --red: #EF4444;
+  }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+  }
+
+  .logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .logo span {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .logo small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+  .nav-item:hover { background: var(--orange-light); color: var(--orange); }
+  .nav-item.active {
+    background: var(--orange-light);
+    color: var(--orange);
+    border-left-color: var(--orange);
+  }
+  .nav-section {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    padding: 16px 20px 6px;
+  }
+
+  /* Main */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 28px 32px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-title { font-size: 20px; font-weight: 700; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .date-range {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .date-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .date-btn.active {
+    background: var(--orange);
+    color: white;
+    border-color: var(--orange);
+  }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .kpi-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kpi-change {
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi-change.up { color: var(--green); }
+  .kpi-change.down { color: var(--red); }
+  .kpi-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* Charts row */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* Bar chart */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 140px;
+    padding-bottom: 24px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 2px; }
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: opacity .2s;
+  }
+  .bar:hover { opacity: .8; }
+  .bar-label { font-size: 10px; color: var(--muted); position: absolute; bottom: 4px; }
+
+  /* Donut chart */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .donut {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--orange) 0deg 162deg,
+      var(--blue) 162deg 234deg,
+      var(--green) 234deg 288deg,
+      var(--purple) 288deg 324deg,
+      #E5E7EB 324deg 360deg
+    );
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .donut::after {
+    content: '';
+    width: 72px; height: 72px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+  }
+  .donut-center {
+    position: absolute;
+    z-index: 1;
+    text-align: center;
+  }
+  .donut-center strong { font-size: 18px; font-weight: 700; display: block; }
+  .donut-center span { font-size: 10px; color: var(--muted); }
+
+  .legend { width: 100%; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+  }
+  .legend-left { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .legend-pct { font-weight: 600; }
+
+  /* Bottom row */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 10px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.new { background: #ECFDF5; color: var(--green); }
+  .badge.return { background: #EFF6FF; color: var(--blue); }
+  .badge.sign-in { background: #F5F3FF; color: var(--purple); }
+
+  /* Activity timeline */
+  .timeline { display: flex; flex-direction: column; gap: 12px; }
+  .tl-item { display: flex; gap: 12px; align-items: flex-start; }
+  .tl-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .tl-body { flex: 1; }
+  .tl-title { font-size: 13px; font-weight: 500; }
+  .tl-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Heat map */
+  .heatmap {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 3px;
+    margin-top: 8px;
+  }
+  .heatmap-col { display: flex; flex-direction: column; gap: 3px; }
+  .heat-cell {
+    height: 18px;
+    border-radius: 3px;
+  }
+  .heatmap-labels {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 3px;
+    margin-top: 4px;
+  }
+  .heatmap-labels span { font-size: 9px; color: var(--muted); text-align: center; }
+
+  /* Sparkline */
+  .sparkline {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+    margin-top: 4px;
+  }
+  .spark-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    background: var(--orange-light);
+  }
+  .spark-bar.hi { background: var(--orange); }
+
+  /* Search keywords */
+  .keyword-list { display: flex; flex-direction: column; gap: 8px; }
+  .keyword-item { display: flex; align-items: center; gap: 10px; }
+  .kw-rank { font-size: 11px; color: var(--muted); width: 16px; text-align: center; font-weight: 600; }
+  .kw-bar-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .kw-bar { height: 100%; border-radius: 4px; background: var(--orange); }
+  .kw-label { font-size: 12px; font-weight: 500; min-width: 80px; }
+  .kw-count { font-size: 12px; color: var(--muted); }
+
+  /* Full width section */
+  .full-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .tab-row { display: flex; gap: 4px; }
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+  }
+  .tab.active {
+    background: var(--orange-light);
+    color: var(--orange);
+  }
+
+  /* Note về editable */
+  .admin-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFBEB;
+    border: 1px solid #FCD34D;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400E;
+    margin-bottom: 20px;
+  }
+
+  svg { vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span>🍜 HolaMate</span>
+      <small>Admin Dashboard</small>
+    </div>
+
+    <div class="nav-section">Tổng quan</div>
+    <div class="nav-item active">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Analytics
+    </div>
+
+    <div class="nav-section">Quản lý</div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Người dùng
+    </div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Quán ăn
+    </div>
+    <div class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Đơn hàng
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">Analytics & Tracking</div>
+        <div class="page-sub">Dữ liệu người dùng · Có thể chỉnh thời gian qua Supabase SQL Editor</div>
+      </div>
+      <div class="date-range">
+        <button class="date-btn">7 ngày</button>
+        <button class="date-btn active">30 ngày</button>
+        <button class="date-btn">Tùy chỉnh</button>
+      </div>
+    </div>
+
+    <!-- Admin note -->
+    <div class="admin-note">
+      ⚡ Thời gian các sự kiện có thể điều chỉnh trực tiếp trong Supabase SQL Editor:
+      <code style="background:#FEF3C7;padding:2px 6px;border-radius:4px;font-size:11px;">
+        UPDATE user_login_history SET created_at = '2025-06-01 09:00:00' WHERE id = '...'
+      </code>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span class="kpi-dot" style="background:var(--green)"></span>
+          Người dùng mới
+        </div>
+        <div class="kpi-value" style="color:var(--green)">247</div>
+        <div class="kpi-change up">↑ +18% so với tháng trước</div>
+        <div class="sparkline" style="margin-top:10px">
+          <div class="spark-bar" style="height:30%"></div>
+          <div class="spark-bar" style="height:45%"></div>
+          <div class="spark-bar" style="height:35%"></div>
+          <div class="spark-bar" style="height:60%"></div>
+          <div class="spark-bar" style="height:50%"></div>
+          <div class="spark-bar" style="height:70%"></div>
+          <div class="spark-bar hi" style="height:100%"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span class="kpi-dot" style="background:var(--blue)"></span>
+          Người dùng quay lại
+        </div>
+        <div class="kpi-value" style="color:var(--blue)">89</div>
+        <div class="kpi-change up">↑ +31% — tỷ lệ retention tốt</div>
+        <div class="sparkline" style="margin-top:10px">
+          <div class="spark-bar" style="height:20%;background:#EFF6FF"></div>
+          <div class="spark-bar" style="height:35%;background:#EFF6FF"></div>
+          <div class="spark-bar" style="height:40%;background:#EFF6FF"></div>
+          <div class="spark-bar" style="height:55%;background:#EFF6FF"></div>
+          <div class="spark-bar" style="height:60%;background:#EFF6FF"></div>
+          <div class="spark-bar" style="height:75%;background:#EFF6FF"></div>
+          <div class="spark-bar" style="height:100%;background:var(--blue)"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span class="kpi-dot" style="background:var(--orange)"></span>
+          Phiên sử dụng
+        </div>
+        <div class="kpi-value" style="color:var(--orange)">1,204</div>
+        <div class="kpi-change up">↑ +24% so với tháng trước</div>
+        <div class="sparkline" style="margin-top:10px">
+          <div class="spark-bar" style="height:40%"></div>
+          <div class="spark-bar" style="height:50%"></div>
+          <div class="spark-bar" style="height:45%"></div>
+          <div class="spark-bar" style="height:65%"></div>
+          <div class="spark-bar" style="height:70%"></div>
+          <div class="spark-bar" style="height:85%"></div>
+          <div class="spark-bar hi" style="height:100%"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span class="kpi-dot" style="background:var(--purple)"></span>
+          Tổng đơn hàng
+        </div>
+        <div class="kpi-value" style="color:var(--purple)">312</div>
+        <div class="kpi-change up">↑ +42% so với tháng trước</div>
+        <div class="sparkline" style="margin-top:10px">
+          <div class="spark-bar" style="height:25%;background:#F5F3FF"></div>
+          <div class="spark-bar" style="height:40%;background:#F5F3FF"></div>
+          <div class="spark-bar" style="height:35%;background:#F5F3FF"></div>
+          <div class="spark-bar" style="height:55%;background:#F5F3FF"></div>
+          <div class="spark-bar" style="height:65%;background:#F5F3FF"></div>
+          <div class="spark-bar" style="height:80%;background:#F5F3FF"></div>
+          <div class="spark-bar" style="height:100%;background:var(--purple)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+      <!-- Đăng ký theo ngày -->
+      <div class="card">
+        <div class="card-title">Đăng ký mới theo ngày</div>
+        <div class="card-sub">sign_up events · 30 ngày gần nhất</div>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar" style="height:30%;background:var(--orange-light)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:50%;background:var(--orange-light)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:40%;background:var(--orange-light)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:65%;background:var(--orange-dim)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:55%;background:var(--orange-light)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:80%;background:var(--orange-dim)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:45%;background:var(--orange-light)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:70%;background:var(--orange-dim)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:60%;background:var(--orange-light)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:90%;background:var(--orange)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:75%;background:var(--orange-dim)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:100%;background:var(--orange)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:85%;background:var(--orange-dim)"></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:95%;background:var(--orange)"></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <span style="font-size:11px;color:var(--muted)">01/06</span>
+          <span style="font-size:11px;color:var(--muted)">15/06</span>
+          <span style="font-size:11px;color:var(--muted)">25/06</span>
+        </div>
+      </div>
+
+      <!-- Hành vi sử dụng -->
+      <div class="card">
+        <div class="card-title">Hành vi sử dụng</div>
+        <div class="card-sub">event_type · tổng phiên</div>
+        <div class="donut-wrap">
+          <div class="donut">
+            <div class="donut-center">
+              <strong>1,204</strong>
+              <span>events</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:var(--orange)"></div>
+                <span>Xem trang quán</span>
+              </div>
+              <span class="legend-pct">45%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:var(--blue)"></div>
+                <span>Tìm kiếm</span>
+              </div>
+              <span class="legend-pct">20%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:var(--green)"></div>
+                <span>Đặt món</span>
+              </div>
+              <span class="legend-pct">15%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:var(--purple)"></div>
+                <span>Dùng AI</span>
+              </div>
+              <span class="legend-pct">10%</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-left">
+                <div class="legend-dot" style="background:#E5E7EB"></div>
+                <span>Khác</span>
+              </div>
+              <span class="legend-pct">10%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="bottom-row">
+
+      <!-- Lịch sử đăng nhập gần đây -->
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <div class="card-title">Lịch sử đăng nhập</div>
+            <div class="card-sub">user_login_history · realtime</div>
+          </div>
+          <div class="tab-row">
+            <button class="tab active">Tất cả</button>
+            <button class="tab">Mới</button>
+            <button class="tab">Quay lại</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Người dùng</th>
+              <th>Sự kiện</th>
+              <th>Phương thức</th>
+              <th>Thời gian</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>nguyenvan_a@fpt.edu.vn</td>
+              <td><span class="badge new">Đăng ký</span></td>
+              <td>Google</td>
+              <td style="color:var(--muted)">10:23 hôm nay</td>
+            </tr>
+            <tr>
+              <td>tranthib@gmail.com</td>
+              <td><span class="badge return">Quay lại</span></td>
+              <td>Email</td>
+              <td style="color:var(--muted)">09:45 hôm nay</td>
+            </tr>
+            <tr>
+              <td>lehoangc@fpt.edu.vn</td>
+              <td><span class="badge sign-in">Đăng nhập</span></td>
+              <td>Google</td>
+              <td style="color:var(--muted)">09:12 hôm nay</td>
+            </tr>
+            <tr>
+              <td>phamminhe@gmail.com</td>
+              <td><span class="badge new">Đăng ký</span></td>
+              <td>Email</td>
+              <td style="color:var(--muted)">Hôm qua 22:31</td>
+            </tr>
+            <tr>
+              <td>vuthig@fpt.edu.vn</td>
+              <td><span class="badge return">Quay lại</span></td>
+              <td>Google</td>
+              <td style="color:var(--muted)">Hôm qua 21:05</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Top từ khóa tìm kiếm -->
+      <div class="card">
+        <div class="card-title">Từ khóa tìm kiếm nhiều nhất</div>
+        <div class="card-sub">event_data->>'query' · 30 ngày</div>
+        <div class="keyword-list" style="margin-top:8px">
+          <div class="keyword-item">
+            <span class="kw-rank">1</span>
+            <span class="kw-label">gà rán</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:90%"></div></div>
+            <span class="kw-count">312</span>
+          </div>
+          <div class="keyword-item">
+            <span class="kw-rank">2</span>
+            <span class="kw-label">cơm</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:75%"></div></div>
+            <span class="kw-count">247</span>
+          </div>
+          <div class="keyword-item">
+            <span class="kw-rank">3</span>
+            <span class="kw-label">pizza</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:60%"></div></div>
+            <span class="kw-count">198</span>
+          </div>
+          <div class="keyword-item">
+            <span class="kw-rank">4</span>
+            <span class="kw-label">ship đêm</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:50%"></div></div>
+            <span class="kw-count">164</span>
+          </div>
+          <div class="keyword-item">
+            <span class="kw-rank">5</span>
+            <span class="kw-label">korean</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:40%"></div></div>
+            <span class="kw-count">132</span>
+          </div>
+          <div class="keyword-item">
+            <span class="kw-rank">6</span>
+            <span class="kw-label">trà sữa</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:30%"></div></div>
+            <span class="kw-count">98</span>
+          </div>
+          <div class="keyword-item">
+            <span class="kw-rank">7</span>
+            <span class="kw-label">dưới 30k</span>
+            <div class="kw-bar-wrap"><div class="kw-bar" style="width:22%"></div></div>
+            <span class="kw-count">74</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Giờ cao điểm heatmap -->
+    <div class="full-card">
+      <div class="card-title">Giờ cao điểm sử dụng</div>
+      <div class="card-sub" style="margin-bottom:12px">Số phiên truy cập theo giờ trong ngày · 7 ngày qua</div>
+      <div class="heatmap">
+        <!-- 7 rows (days) x 24 cols (hours) — simplified as color blocks -->
+        <script>
+          // Inline render
+        </script>
+      </div>
+      <div style="display:flex;gap:3px;margin-top:12px">
+        <!-- Generate heatmap cells inline via CSS art -->
+        <div style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;width:100%">
+          <!-- Row labels -->
+        </div>
+      </div>
+      <!-- Simplified heatmap using colored divs -->
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:grid;grid-template-columns:40px repeat(24,1fr);gap:3px;align-items:center">
+          <span style="font-size:11px;color:var(--muted)">T2</span>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FED7AA"></div>
+          <div style="height:18px;border-radius:3px;background:#FDBA74"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#EA580C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#FDBA74"></div>
+          <div style="height:18px;border-radius:3px;background:#FED7AA"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FED7AA"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#FDBA74"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:40px repeat(24,1fr);gap:3px;align-items:center">
+          <span style="font-size:11px;color:var(--muted)">T3</span>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FED7AA"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#EA580C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#FDBA74"></div>
+          <div style="height:18px;border-radius:3px;background:#FED7AA"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#EA580C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#FDBA74"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:40px repeat(24,1fr);gap:3px;align-items:center">
+          <span style="font-size:11px;color:var(--muted)">T4</span>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#EA580C"></div>
+          <div style="height:18px;border-radius:3px;background:#EA580C"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#FED7AA"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FFEDD5"></div>
+          <div style="height:18px;border-radius:3px;background:#FDBA74"></div>
+          <div style="height:18px;border-radius:3px;background:#F97316"></div>
+          <div style="height:18px;border-radius:3px;background:#EA580C"></div>
+          <div style="height:18px;border-radius:3px;background:#FB923C"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="height:18px;border-radius:3px;background:#FFF7ED"></div>
+        </div>
+        <!-- Hour labels -->
+        <div style="display:grid;grid-template-columns:40px repeat(24,1fr);gap:3px;margin-top:4px">
+          <span></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">0h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">4h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">8h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">11h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">12h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">13h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">17h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">19h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">20h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center">21h</span>
+          <span style="font-size:9px;color:var(--muted);text-align:center"></span>
+        </div>
+        <!-- Legend -->
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end">
+          <span style="font-size:11px;color:var(--muted)">Ít</span>
+          <div style="width:14px;height:14px;border-radius:3px;background:#FFF7ED"></div>
+          <div style="width:14px;height:14px;border-radius:3px;background:#FDBA74"></div>
+          <div style="width:14px;height:14px;border-radius:3px;background:#F97316"></div>
+          <div style="width:14px;height:14px;border-radius:3px;background:#EA580C"></div>
+          <span style="font-size:11px;color:var(--muted)">Nhiều</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

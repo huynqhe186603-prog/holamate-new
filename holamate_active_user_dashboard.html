@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HolaMate — Active User Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#F97316;--orange-l:#FFF7ED;--orange-d:#EA580C;
+  --dark:#111827;--gray:#374151;--gray-l:#9CA3AF;--gray-bg:#F8F9FB;
+  --white:#FFFFFF;--green:#10B981;--green-l:#D1FAE5;--green-d:#065F46;
+  --blue:#3B82F6;--blue-l:#EFF6FF;--blue-d:#1E40AF;
+  --purple:#8B5CF6;--purple-l:#F5F3FF;
+  --yellow:#F59E0B;--yellow-l:#FEF3C7;
+  --red:#EF4444;--red-l:#FEE2E2;
+  --border:#E9ECF0;--surface:#FFFFFF;
+}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--gray-bg);color:var(--dark);font-size:13px}
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:20px 0;position:fixed;top:0;left:0;bottom:0}
+.logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.logo span{font-size:18px;font-weight:700;color:var(--orange)}
+.logo small{display:block;font-size:11px;color:var(--gray-l);margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--gray-l);
+  cursor:pointer;font-size:13px;font-weight:500;border-left:3px solid transparent}
+.nav-item.active{background:var(--orange-l);color:var(--orange);border-left-color:var(--orange)}
+.nav-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--gray-l);padding:16px 20px 6px}
+
+/* Main */
+.main{margin-left:220px;flex:1;padding:28px 32px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:20px;font-weight:700}
+.page-sub{font-size:13px;color:var(--gray-l);margin-top:2px}
+.badge-def{background:var(--orange-l);border:1px solid var(--orange);border-radius:8px;
+  padding:10px 16px;font-size:12px;color:var(--orange-d);margin-bottom:24px;line-height:1.6}
+.badge-def strong{color:var(--orange);font-weight:700}
+
+/* Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.kpi-label{font-size:11px;color:var(--gray-l);font-weight:600;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px}
+.kpi-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.kpi-value{font-size:32px;font-weight:700;line-height:1;margin-bottom:6px}
+.kpi-sub{font-size:11px;color:var(--gray-l)}
+.kpi-change{font-size:12px;font-weight:600;margin-top:6px}
+.kpi-change.up{color:var(--green)}
+
+/* Charts row */
+.charts-row{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--gray-l);margin-bottom:16px}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:160px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.bar-group{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:opacity .2s;cursor:pointer;position:relative}
+.bar:hover{opacity:.8}
+.bar-label{font-size:9px;color:var(--gray-l);margin-top:6px}
+.bar-val{font-size:9px;font-weight:600;color:var(--gray)}
+
+/* Funnel */
+.funnel{display:flex;flex-direction:column;gap:8px}
+.funnel-item{display:flex;align-items:center;gap:12px}
+.funnel-bar-wrap{flex:1;background:var(--gray-bg);border-radius:6px;height:28px;overflow:hidden;position:relative}
+.funnel-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px}
+.funnel-bar span{font-size:11px;font-weight:600;color:white}
+.funnel-label{font-size:11px;font-weight:500;width:110px;color:var(--gray)}
+.funnel-pct{font-size:11px;color:var(--gray-l);width:36px;text-align:right}
+
+/* Activity breakdown */
+.activity-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.activity-item{display:flex;align-items:center;gap:12px;padding:12px;
+  background:var(--gray-bg);border-radius:10px}
+.activity-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0}
+.activity-name{font-size:12px;font-weight:600;color:var(--dark)}
+.activity-count{font-size:11px;color:var(--gray-l);margin-top:2px}
+.activity-bar-wrap{flex:1;background:#E5E7EB;border-radius:4px;height:6px;overflow:hidden}
+.activity-bar{height:100%;border-radius:4px}
+
+/* MAU definition box */
+.def-box{background:var(--surface);border:2px solid var(--orange);border-radius:12px;
+  padding:20px;margin-bottom:24px}
+.def-title{font-size:15px;font-weight:700;color:var(--orange);margin-bottom:12px}
+.def-conditions{display:flex;gap:16px}
+.def-condition{flex:1;background:var(--orange-l);border-radius:10px;padding:14px}
+.def-condition .num{font-size:28px;font-weight:700;color:var(--orange);line-height:1}
+.def-condition .label{font-size:11px;color:var(--orange-d);margin-top:4px;font-weight:500}
+.def-condition .desc{font-size:10px;color:var(--gray-l);margin-top:4px}
+
+/* Session table */
+.session-table{width:100%;border-collapse:collapse}
+.session-table th{text-align:left;font-size:11px;font-weight:600;color:var(--gray-l);
+  text-transform:uppercase;letter-spacing:.05em;padding:0 0 10px;border-bottom:1px solid var(--border)}
+.session-table td{padding:10px 0;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.session-table tr:last-child td{border-bottom:none}
+.tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.tag.active{background:var(--green-l);color:var(--green-d)}
+.tag.view{background:var(--blue-l);color:var(--blue-d)}
+.tag.search{background:var(--purple-l);color:var(--purple)}
+.tag.ai{background:var(--yellow-l);color:#92400E}
+.tag.order{background:var(--green-l);color:var(--green-d)}
+
+/* Retention heatmap */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+.heat-cell{height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;cursor:pointer;transition:transform .1s}
+.heat-cell:hover{transform:scale(1.1)}
+.heat-label{font-size:10px;color:var(--gray-l);text-align:center;margin-bottom:4px}
+
+/* Bottom row */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <span>🍜 HolaMate</span>
+    <small>Admin Dashboard</small>
+  </div>
+  <div class="nav-section">Tổng quan</div>
+  <div class="nav-item active">📊 Active User Analytics</div>
+  <div class="nav-section">Quản lý</div>
+  <div class="nav-item">🏪 Vendors</div>
+  <div class="nav-item">👥 Users</div>
+  <div class="nav-item">⭐ Reviews</div>
+  <div class="nav-item">📦 Orders</div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Active User Analytics</div>
+      <div class="page-sub">Phân tích hành vi người dùng · Tháng 6–7/2026</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:500;color:var(--gray-l)">7 ngày</button>
+      <button style="padding:7px 14px;border-radius:8px;border:1px solid var(--orange);background:var(--orange);font-size:12px;font-weight:500;color:white">30 ngày</button>
+    </div>
+  </div>
+
+  <!-- Định nghĩa MAU -->
+  <div class="def-box">
+    <div class="def-title">📌 Định nghĩa Monthly Active User (MAU) — HolaMate</div>
+    <div class="def-conditions">
+      <div class="def-condition">
+        <div class="num">≥ 2</div>
+        <div class="label">Lần đăng nhập / tháng</div>
+        <div class="desc">Phải đăng nhập ít nhất 2 lần trong 30 ngày</div>
+      </div>
+      <div class="def-condition">
+        <div class="num">≥ 3'</div>
+        <div class="label">Thời gian mỗi phiên</div>
+        <div class="desc">Mỗi phiên truy cập kéo dài ít nhất 3 phút</div>
+      </div>
+      <div class="def-condition">
+        <div class="num">≥ 1</div>
+        <div class="label">Hành động có chủ đích</div>
+        <div class="desc">Xem quán, tìm kiếm, dùng AI, đặt món, review, xem menu, click liên hệ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label"><span class="kpi-dot" style="background:var(--orange)"></span>Tổng Users đăng ký</div>
+      <div class="kpi-value" style="color:var(--orange)">177</div>
+      <div class="kpi-sub">Từ 11/6 – 2/7/2026</div>
+      <div class="kpi-change up">▲ 177 users sau 3 tuần</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><span class="kpi-dot" style="background:var(--green)"></span>Monthly Active Users</div>
+      <div class="kpi-value" style="color:var(--green)">124</div>
+      <div class="kpi-sub">Đạt cả 3 điều kiện MAU</div>
+      <div class="kpi-change up">▲ 70% tỷ lệ activation</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><span class="kpi-dot" style="background:var(--blue)"></span>Avg. Session Duration</div>
+      <div class="kpi-value" style="color:var(--blue)">4'32"</div>
+      <div class="kpi-sub">Thời gian trung bình/phiên</div>
+      <div class="kpi-change up">▲ Vượt ngưỡng 3 phút</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><span class="kpi-dot" style="background:var(--purple)"></span>Avg. Login / User</div>
+      <div class="kpi-value" style="color:var(--purple)">3.2</div>
+      <div class="kpi-sub">Lần đăng nhập TB/user/tháng</div>
+      <div class="kpi-change up">▲ Vượt ngưỡng 2 lần</div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="charts-row">
+    <!-- Đăng nhập theo ngày -->
+    <div class="card">
+      <div class="card-title">Lượt đăng nhập theo ngày</div>
+      <div class="card-sub">sign_in + sign_up events · 14 ngày gần nhất</div>
+      <div class="bar-chart">
+        <div class="bar-group"><div class="bar" style="height:30%;background:var(--orange-l)"></div><div class="bar-label">19/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:45%;background:var(--orange-l)"></div><div class="bar-label">20/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:35%;background:var(--orange-l)"></div><div class="bar-label">21/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:100%;background:var(--orange)"></div><div class="bar-label">22/6🎯</div></div>
+        <div class="bar-group"><div class="bar" style="height:75%;background:var(--orange-d)"></div><div class="bar-label">23/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:55%;background:var(--orange-l)"></div><div class="bar-label">24/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:40%;background:var(--orange-l)"></div><div class="bar-label">25/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:38%;background:var(--orange-l)"></div><div class="bar-label">26/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:42%;background:var(--orange-l)"></div><div class="bar-label">27/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:36%;background:var(--orange-l)"></div><div class="bar-label">28/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:48%;background:var(--orange-l)"></div><div class="bar-label">29/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:44%;background:var(--orange-l)"></div><div class="bar-label">30/6</div></div>
+        <div class="bar-group"><div class="bar" style="height:52%;background:var(--orange-l)"></div><div class="bar-label">1/7</div></div>
+        <div class="bar-group"><div class="bar" style="height:46%;background:var(--orange-l)"></div><div class="bar-label">2/7</div></div>
+      </div>
+    </div>
+
+    <!-- User Funnel -->
+    <div class="card">
+      <div class="card-title">Phễu hành vi người dùng</div>
+      <div class="card-sub">Từ đăng ký → hành động thực</div>
+      <div class="funnel" style="margin-top:8px">
+        <div class="funnel-item">
+          <div class="funnel-label">Đăng ký</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:var(--orange)">
+              <span>177 users</span>
+            </div>
+          </div>
+          <div class="funnel-pct">100%</div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-label">Đăng nhập ≥2 lần</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:84%;background:var(--blue)">
+              <span>149 users</span>
+            </div>
+          </div>
+          <div class="funnel-pct">84%</div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-label">Session ≥ 3 phút</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:78%;background:var(--purple)">
+              <span>138 users</span>
+            </div>
+          </div>
+          <div class="funnel-pct">78%</div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-label">Có hành động ✓</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:70%;background:var(--green)">
+              <span>124 MAU ✅</span>
+            </div>
+          </div>
+          <div class="funnel-pct">70%</div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-label">Đặt món</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:15%;background:var(--yellow)">
+              <span>26 users</span>
+            </div>
+          </div>
+          <div class="funnel-pct">15%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Breakdown -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">Phân tích hành vi — Event Breakdown</div>
+    <div class="card-sub">Tổng số lượt thực hiện từng hành động · 30 ngày</div>
+    <div class="activity-grid" style="margin-top:12px">
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--blue-l)">🏪</div>
+        <div style="flex:1">
+          <div class="activity-name">Xem trang quán (view_vendor)</div>
+          <div class="activity-count">892 lượt · 124 users</div>
+          <div class="activity-bar-wrap" style="margin-top:6px">
+            <div class="activity-bar" style="width:90%;background:var(--blue)"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--blue)">892</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--purple-l)">🔍</div>
+        <div style="flex:1">
+          <div class="activity-name">Tìm kiếm (search)</div>
+          <div class="activity-count">634 lượt · 98 users</div>
+          <div class="activity-bar-wrap" style="margin-top:6px">
+            <div class="activity-bar" style="width:64%;background:var(--purple)"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--purple)">634</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--orange-l)">🤖</div>
+        <div style="flex:1">
+          <div class="activity-name">HolaMate AI (use_ai)</div>
+          <div class="activity-count">421 lượt · 87 users</div>
+          <div class="activity-bar-wrap" style="margin-top:6px">
+            <div class="activity-bar" style="width:42%;background:var(--orange)"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--orange)">421</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:#F0FDF4">📋</div>
+        <div style="flex:1">
+          <div class="activity-name">Xem menu quán (view_menu)</div>
+          <div class="activity-count">387 lượt · 91 users</div>
+          <div class="activity-bar-wrap" style="margin-top:6px">
+            <div class="activity-bar" style="width:39%;background:var(--green)"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--green)">387</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--yellow-l)">📞</div>
+        <div style="flex:1">
+          <div class="activity-name">Click liên hệ quán (click_contact)</div>
+          <div class="activity-count">213 lượt · 68 users</div>
+          <div class="activity-bar-wrap" style="margin-top:6px">
+            <div class="activity-bar" style="width:21%;background:var(--yellow)"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--yellow)">213</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--red-l)">🛒</div>
+        <div style="flex:1">
+          <div class="activity-name">Đặt món (checkout)</div>
+          <div class="activity-count">87 lượt · 26 users</div>
+          <div class="activity-bar-wrap" style="margin-top:6px">
+            <div class="activity-bar" style="width:9%;background:var(--red)"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--red)">87</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="bottom-row">
+    <!-- Session duration distribution -->
+    <div class="card">
+      <div class="card-title">Phân bố thời gian phiên</div>
+      <div class="card-sub">Session duration · Ngưỡng Active = 3 phút</div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--red)">❌ &lt; 1 phút (bounce)</span>
+            <span style="font-size:11px;font-weight:600;color:var(--red)">18 users (10%)</span>
+          </div>
+          <div style="background:#E5E7EB;border-radius:4px;height:8px">
+            <div style="width:10%;height:100%;background:var(--red);border-radius:4px"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--yellow)">⚠️ 1–3 phút</span>
+            <span style="font-size:11px;font-weight:600;color:var(--yellow)">35 users (20%)</span>
+          </div>
+          <div style="background:#E5E7EB;border-radius:4px;height:8px">
+            <div style="width:20%;height:100%;background:var(--yellow);border-radius:4px"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--green)">✅ 3–10 phút (Active)</span>
+            <span style="font-size:11px;font-weight:600;color:var(--green)">89 users (50%)</span>
+          </div>
+          <div style="background:#E5E7EB;border-radius:4px;height:8px">
+            <div style="width:50%;height:100%;background:var(--green);border-radius:4px"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--blue)">🔥 &gt; 10 phút (Power user)</span>
+            <span style="font-size:11px;font-weight:600;color:var(--blue)">35 users (20%)</span>
+          </div>
+          <div style="background:#E5E7EB;border-radius:4px;height:8px">
+            <div style="width:20%;height:100%;background:var(--blue);border-radius:4px"></div>
+          </div>
+        </div>
+        <div style="margin-top:8px;padding:10px;background:var(--green-l);border-radius:8px">
+          <div style="font-size:12px;font-weight:700;color:var(--green-d)">
+            ✅ 124/177 users (70%) đạt tiêu chí MAU
+          </div>
+          <div style="font-size:10px;color:var(--green-d);margin-top:2px">
+            Session ≥ 3 phút + ≥ 2 lần login + ≥ 1 hành động
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top pages & recent sessions -->
+    <div class="card">
+      <div class="card-title">Lịch sử phiên gần đây</div>
+      <div class="card-sub">Active sessions · Có đủ 3 điều kiện MAU</div>
+      <table class="session-table" style="margin-top:8px">
+        <thead>
+          <tr>
+            <th>Người dùng</th>
+            <th>Login</th>
+            <th>Thời gian</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>sv_fpt_***@fpt.edu.vn</td>
+            <td>3 lần</td>
+            <td>6'12"</td>
+            <td><span class="tag view">view_vendor</span></td>
+          </tr>
+          <tr>
+            <td>user_***@gmail.com</td>
+            <td>4 lần</td>
+            <td>8'45"</td>
+            <td><span class="tag ai">use_ai</span></td>
+          </tr>
+          <tr>
+            <td>sv_fpt_***@fpt.edu.vn</td>
+            <td>2 lần</td>
+            <td>3'30"</td>
+            <td><span class="tag search">search</span></td>
+          </tr>
+          <tr>
+            <td>user_***@gmail.com</td>
+            <td>5 lần</td>
+            <td>12'08"</td>
+            <td><span class="tag order">checkout</span></td>
+          </tr>
+          <tr>
+            <td>sv_fpt_***@fpt.edu.vn</td>
+            <td>2 lần</td>
+            <td>4'22"</td>
+            <td><span class="tag view">view_vendor</span></td>
+          </tr>
+          <tr>
+            <td>user_***@gmail.com</td>
+            <td>3 lần</td>
+            <td>5'15"</td>
+            <td><span class="tag search">search</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</div>
+</body>
+</html>
