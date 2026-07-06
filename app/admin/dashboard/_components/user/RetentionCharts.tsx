@@ -42,7 +42,7 @@ export function RetentionCharts({ returnLoginsByDay, loginFreqGroups, month }: P
 
         <ChartCard
           title="Lượt đăng nhập quay lại theo ngày"
-          subtitle="Users đã có tài khoản từ trước"
+          subtitle="Số lượt đăng nhập lại trong tháng"
         >
           {hasReturnLogins ? (
             <ResponsiveContainer width="100%" height={220}>

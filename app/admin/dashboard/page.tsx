@@ -256,10 +256,8 @@ export default async function AdminDashboardPage({
       .map(([event_type, v]) => ({ event_type, count: v.count, uniqueUsers: v.users.size }))
       .sort((a, b) => b.count - a.count)
 
-    // ── Return logins: sign_in from users registered BEFORE this month ──────
-    const existingUserIds = new Set<string>(allSignUps.filter(r => r.created_at < startISO).map(r => r.user_id))
-    const returnLogins = signInRows.filter(r => existingUserIds.has(r.user_id))
-    const returnLoginsByDay = toDayCount(buildDayCounts(returnLogins, lastDay))
+    // ── Return logins: all sign_in events in this month ─────────────────────
+    const returnLoginsByDay = toDayCount(buildDayCounts(signInRows, lastDay))
 
     // ── Login frequency groups ───────────────────────────────────────────────
     const loginFreqGroups: FreqGroup[] = [
