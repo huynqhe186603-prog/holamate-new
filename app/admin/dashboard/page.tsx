@@ -123,7 +123,7 @@ export default async function AdminDashboardPage({
     supabase.from('reviews').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).neq('role', 'admin'),
     supabase.from('orders').select('*', { count: 'exact', head: true })
-      .gte('created_at', new Date().toISOString().split('T')[0]),
+      .gte('created_at', new Date('2026-07-12').toISOString().split('T')[0]),
     supabase.from('vendors').select('id,name,vendor_type,created_at', { count: 'exact' })
       .eq('status', 'pending').order('created_at', { ascending: false }).limit(5),
     supabase.from('review_reports').select('id,reason,review_id,created_at,reviews(content)', { count: 'exact' })
@@ -374,7 +374,7 @@ export default async function AdminDashboardPage({
       <div>
         <h1 className="text-xl font-bold text-neutral-900">Admin Dashboard</h1>
         <p className="text-sm text-neutral-500 mt-0.5">
-          {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
+          {new Date('2026-07-12').toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })}
           {totalPending > 0 && (
             <span className="ml-2 text-red-600 font-medium">· {totalPending} việc cần xử lý</span>
           )}
