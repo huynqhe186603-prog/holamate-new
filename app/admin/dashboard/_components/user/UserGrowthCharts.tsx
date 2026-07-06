@@ -1,6 +1,6 @@
 'use client'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
 } from 'recharts'
 import { ChartCard, EmptyChart } from '../ChartCard'
 import type { DayCount } from '../types'
@@ -40,13 +40,17 @@ export function UserGrowthCharts({ signupsByDay, cumulativeByDay, month }: Props
         <ChartCard title="Người dùng đăng ký mới" subtitle="Sign-up events theo ngày">
           {hasSignups ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={signupsByDay} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <BarChart data={signupsByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Đăng ký']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="Đăng ký mới" fill="#F97316" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="Đăng ký mới" fill="#F97316" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -55,13 +59,17 @@ export function UserGrowthCharts({ signupsByDay, cumulativeByDay, month }: Props
         <ChartCard title="Tổng người dùng tích lũy" subtitle="Cộng dồn đến cuối mỗi ngày">
           {hasCumulative ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={cumulativeByDay} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
+              <BarChart data={cumulativeByDay} margin={{ top: 20, right: 8, left: -8, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Tổng users']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="Tổng tích lũy" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="Tổng tích lũy" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}

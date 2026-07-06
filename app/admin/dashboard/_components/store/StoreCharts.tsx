@@ -1,6 +1,6 @@
 'use client'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
 } from 'recharts'
 import { ChartCard, EmptyChart, KpiCard } from '../ChartCard'
 import type { DayRevenue, NameValue } from '../types'
@@ -64,13 +64,17 @@ export function StoreCharts({
         <ChartCard title="Đơn hàng theo ngày" subtitle="Số đơn mỗi ngày">
           {hasOrders ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={ordersByDay} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <BarChart data={ordersByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Đơn hàng']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="Đơn hàng" fill="#F97316" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="Đơn hàng" fill="#F97316" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -79,7 +83,7 @@ export function StoreCharts({
         <ChartCard title="Doanh thu theo ngày" subtitle="Tổng total_price (VND)">
           {hasRevenue ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={ordersByDay} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
+              <BarChart data={ordersByDay} margin={{ top: 20, right: 8, left: -8, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
@@ -88,7 +92,11 @@ export function StoreCharts({
                 <Tooltip {...TOOLTIP_STYLE}
                   formatter={(v) => [`${fmtVND(Number(v))}đ`, 'Doanh thu']}
                   labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="revenue" name="Doanh thu" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="revenue" name="Doanh thu" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="revenue" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? fmtVND(Number(v)) : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -106,8 +114,11 @@ export function StoreCharts({
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#6B7280' }}
                   tickLine={false} axisLine={false} width={120} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Lượt xem']} />
-                <Bar dataKey="value" name="Lượt xem" fill="#3B82F6" radius={[0, 4, 4, 0]} maxBarSize={18}
-                  label={{ position: 'right', fontSize: 11, fill: '#9CA3AF' }} />
+                <Bar dataKey="value" name="Lượt xem" fill="#3B82F6" radius={[0, 4, 4, 0]} maxBarSize={18}>
+                  <LabelList dataKey="value" position="right"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -122,8 +133,11 @@ export function StoreCharts({
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#6B7280' }}
                   tickLine={false} axisLine={false} width={120} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Đơn hàng']} />
-                <Bar dataKey="value" name="Đơn hàng" fill="#8B5CF6" radius={[0, 4, 4, 0]} maxBarSize={18}
-                  label={{ position: 'right', fontSize: 11, fill: '#9CA3AF' }} />
+                <Bar dataKey="value" name="Đơn hàng" fill="#8B5CF6" radius={[0, 4, 4, 0]} maxBarSize={18}>
+                  <LabelList dataKey="value" position="right"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}

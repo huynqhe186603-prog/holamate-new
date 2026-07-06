@@ -1,6 +1,6 @@
 'use client'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList,
 } from 'recharts'
 import { ChartCard, EmptyChart } from '../ChartCard'
 import type { DayCount, FreqGroup } from '../types'
@@ -46,13 +46,17 @@ export function RetentionCharts({ returnLoginsByDay, loginFreqGroups, month }: P
         >
           {hasReturnLogins ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={returnLoginsByDay} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <BarChart data={returnLoginsByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Lượt quay lại']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="Đăng nhập quay lại" fill="#F59E0B" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="Đăng nhập quay lại" fill="#F59E0B" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -70,8 +74,10 @@ export function RetentionCharts({ returnLoginsByDay, loginFreqGroups, month }: P
                 <YAxis dataKey="group" type="category" tick={{ fontSize: 12, fill: '#6B7280' }}
                   tickLine={false} axisLine={false} width={68} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Users']} />
-                <Bar dataKey="count" name="Users" radius={[0, 4, 4, 0]} maxBarSize={22}
-                  label={{ position: 'right', fontSize: 11, fill: '#9CA3AF' }}>
+                <Bar dataKey="count" name="Users" radius={[0, 4, 4, 0]} maxBarSize={22}>
+                  <LabelList dataKey="count" position="right"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
                   {loginFreqGroups.map((_, i) => (
                     <Cell key={i} fill={FREQ_COLORS[i % FREQ_COLORS.length]} />
                   ))}

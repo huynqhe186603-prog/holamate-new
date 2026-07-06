@@ -1,6 +1,6 @@
 'use client'
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
 } from 'recharts'
 import { ChartCard, EmptyChart, KpiCard } from '../ChartCard'
 import type { DayCount, EventCount } from '../types'
@@ -79,13 +79,17 @@ export function ActiveUserCharts({
         <ChartCard title="Lượt đăng nhập theo ngày (C1)" subtitle="sign_in events">
           {hasLogins ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={loginsByDay} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <BarChart data={loginsByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Lượt đăng nhập']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="Lượt login" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="Lượt login" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -94,13 +98,17 @@ export function ActiveUserCharts({
         <ChartCard title="Users có phiên ≥ 3 phút theo ngày (C2)" subtitle="Unique users đạt C2">
           {hasC2 ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={c2UsersByDay} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <BarChart data={c2UsersByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Users']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="Users (C2)" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="Users (C2)" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -119,8 +127,11 @@ export function ActiveUserCharts({
                   tickLine={false} axisLine={false} width={88} />
                 <Tooltip {...TOOLTIP_STYLE}
                   formatter={(v, name) => [v, name === 'users' ? 'Unique users' : 'Tổng lượt']} />
-                <Bar dataKey="users" name="users" fill="#F97316" radius={[0, 4, 4, 0]} maxBarSize={16}
-                  label={{ position: 'right', fontSize: 11, fill: '#9CA3AF' }} />
+                <Bar dataKey="users" name="users" fill="#F97316" radius={[0, 4, 4, 0]} maxBarSize={16}>
+                  <LabelList dataKey="users" position="right"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
@@ -129,13 +140,17 @@ export function ActiveUserCharts({
         <ChartCard title="MAU users hoạt động theo ngày" subtitle="Unique MAU users có event mỗi ngày">
           {hasMau ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={mauByDay} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+              <BarChart data={mauByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                 <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
                   tickFormatter={dayTick} interval={0} />
                 <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'MAU users']} labelFormatter={d => `Ngày ${d}`} />
-                <Bar dataKey="count" name="MAU users" fill="#EA580C" radius={[4, 4, 0, 0]} maxBarSize={18} />
+                <Bar dataKey="count" name="MAU users" fill="#EA580C" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <EmptyChart />}
