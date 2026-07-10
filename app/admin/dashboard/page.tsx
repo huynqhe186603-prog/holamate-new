@@ -306,10 +306,11 @@ export default async function AdminDashboardPage({
       adminClient.from('vendors').select('id, name').eq('status', 'active').order('name').limit(200),
       (() => {
         let q = adminClient.from('reviews')
-          .select('vendor_id, rating, created_at, vendors(name)')
+          .select('vendor_id, rating, created_at, vendors!inner(name, is_partnered)')
           .gte('created_at', startISO).lte('created_at', endISO)
           .eq('review_type', 'vendor')
           .eq('status', 'visible')
+          .eq('vendors.is_partnered', true)
           .limit(5000)
         if (vendorId) q = q.eq('vendor_id', vendorId)
         return q
