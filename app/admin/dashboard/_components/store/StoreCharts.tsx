@@ -51,10 +51,10 @@ export function StoreCharts({
 
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-3">
-        <KpiCard label="Quán đang hoạt động" value={totalActiveVendors}
-          sub="status = active" color="bg-blue-50 border-blue-100" icon="🏪" />
+        <KpiCard label="Tổng số quán" value={totalActiveVendors}
+          sub="" color="bg-blue-50 border-blue-100" icon="🏪" />
         <KpiCard label="Quán liên kết" value={partneredVendors}
-          sub="is_partnered = true" color="bg-orange-50 border-orange-100" icon="🤝" />
+          sub="" color="bg-orange-50 border-orange-100" icon="🤝" />
         <KpiCard label="Đơn hàng trong tháng" value={ordersInMonth}
           sub={`Tháng ${month}`} color="bg-emerald-50 border-emerald-100" icon="🛒" />
       </div>

@@ -283,13 +283,13 @@ export default async function AdminDashboardPage({
   } else {
     // ── Store tab ────────────────────────────────────────────────────────────
     const [
-      { count: activeVendors },
+      { count: totalVendors },
       { count: partnered },
       ordersRes,
       vendorViewsRes,
       allVendorsRes,
     ] = await Promise.all([
-      adminClient.from('vendors').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      adminClient.from('vendors').select('*', { count: 'exact', head: true }),
       adminClient.from('vendors').select('*', { count: 'exact', head: true }).eq('is_partnered', true),
       (() => {
         let q = adminClient.from('orders').select('vendor_id, total_price, created_at, status')
@@ -358,7 +358,7 @@ export default async function AdminDashboardPage({
 
     storeData = {
       month, year,
-      totalActiveVendors: activeVendors ?? 0,
+      totalActiveVendors: totalVendors ?? 0,
       partneredVendors: partnered ?? 0,
       ordersInMonth: orderRows.length,
       ordersByDay, topVendorsByViews, topVendorsByOrders, allVendors,
