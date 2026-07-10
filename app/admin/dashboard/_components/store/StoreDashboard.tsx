@@ -23,6 +23,8 @@ export function StoreDashboard({ data, vendorId }: Props) {
         ordersByDay={data.ordersByDay}
         topVendorsByViews={data.topVendorsByViews}
         topVendorsByOrders={data.topVendorsByOrders}
+        reviewsByDay={data.reviewsByDay}
+        vendorRatings={data.vendorRatings}
         month={data.month}
       />
     </div>

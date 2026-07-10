@@ -11,7 +11,7 @@ import { UserDashboard } from './_components/user/UserDashboard'
 import { StoreDashboard } from './_components/store/StoreDashboard'
 import type {
   UserDashboardData, StoreDashboardData,
-  DayCount, DayRevenue, NameValue, EventCount, FreqGroup,
+  DayCount, DayRevenue, NameValue, EventCount, FreqGroup, VendorRating,
 } from './_components/types'
 
 export const metadata: Metadata = { title: 'Admin Dashboard — HolaMate' }
@@ -288,6 +288,7 @@ export default async function AdminDashboardPage({
       ordersRes,
       vendorViewsRes,
       allVendorsRes,
+      reviewsRes,
     ] = await Promise.all([
       adminClient.from('vendors').select('*', { count: 'exact', head: true }),
       adminClient.from('vendors').select('*', { count: 'exact', head: true }).eq('is_partnered', true),
@@ -303,6 +304,16 @@ export default async function AdminDashboardPage({
         .gte('created_at', startISO).lte('created_at', endISO)
         .limit(10000),
       adminClient.from('vendors').select('id, name').eq('status', 'active').order('name').limit(200),
+      (() => {
+        let q = adminClient.from('reviews')
+          .select('vendor_id, rating, created_at, vendors(name)')
+          .gte('created_at', startISO).lte('created_at', endISO)
+          .eq('review_type', 'vendor')
+          .eq('status', 'visible')
+          .limit(5000)
+        if (vendorId) q = q.eq('vendor_id', vendorId)
+        return q
+      })(),
     ])
 
     const orderRows      = ordersRes.data       ?? []
@@ -356,12 +367,35 @@ export default async function AdminDashboardPage({
       }))
     }
 
+    // Reviews by day
+    const reviewRows = reviewsRes.data ?? []
+    const reviewDayArr: number[] = Array.from({ length: lastDay }, () => 0)
+    for (const r of reviewRows) {
+      const d = getDay7(r.created_at)
+      if (d >= 1 && d <= lastDay) reviewDayArr[d - 1]++
+    }
+    const reviewsByDay: DayCount[] = reviewDayArr.map((count, i) => ({ day: i + 1, count }))
+
+    // Vendor avg ratings
+    const ratingAcc: Record<string, { total: number; count: number; name: string }> = {}
+    for (const r of reviewRows) {
+      const vnd = r.vendors as unknown as { name: string } | null
+      const name = vnd?.name ?? r.vendor_id.slice(0, 8) + '…'
+      if (!ratingAcc[r.vendor_id]) ratingAcc[r.vendor_id] = { total: 0, count: 0, name }
+      ratingAcc[r.vendor_id].total += r.rating
+      ratingAcc[r.vendor_id].count++
+    }
+    const vendorRatings: VendorRating[] = Object.values(ratingAcc)
+      .map(v => ({ name: v.name, avgRating: Math.round((v.total / v.count) * 10) / 10 }))
+      .sort((a, b) => b.avgRating - a.avgRating)
+
     storeData = {
       month, year,
       totalActiveVendors: totalVendors ?? 0,
       partneredVendors: partnered ?? 0,
       ordersInMonth: orderRows.length,
-      ordersByDay, topVendorsByViews, topVendorsByOrders, allVendors,
+      ordersByDay, topVendorsByViews, topVendorsByOrders,
+      reviewsByDay, vendorRatings, allVendors,
     }
   }
 

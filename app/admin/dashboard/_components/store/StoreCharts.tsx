@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList,
 } from 'recharts'
 import { ChartCard, EmptyChart, KpiCard } from '../ChartCard'
-import type { DayRevenue, NameValue } from '../types'
+import type { DayRevenue, DayCount, NameValue, VendorRating } from '../types'
 
 const TICK_STYLE = { fontSize: 11, fill: '#9CA3AF' }
 const TOOLTIP_STYLE = {
@@ -32,15 +32,20 @@ interface Props {
   ordersByDay: DayRevenue[]
   topVendorsByViews: NameValue[]
   topVendorsByOrders: NameValue[]
+  reviewsByDay: DayCount[]
+  vendorRatings: VendorRating[]
   month: number
 }
 
 export function StoreCharts({
   totalActiveVendors, partneredVendors, ordersInMonth,
-  ordersByDay, topVendorsByViews, topVendorsByOrders, month,
+  ordersByDay, topVendorsByViews, topVendorsByOrders,
+  reviewsByDay, vendorRatings, month,
 }: Props) {
   const hasOrders = ordersByDay.some(d => d.count > 0)
   const hasRevenue = ordersByDay.some(d => d.revenue > 0)
+  const hasReviews = reviewsByDay.some(d => d.count > 0)
+  const hasRatings = vendorRatings.length > 0
 
   return (
     <section className="space-y-4">
@@ -137,6 +142,47 @@ export function StoreCharts({
                   <LabelList dataKey="value" position="right"
                     style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
                     formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <EmptyChart />}
+        </ChartCard>
+      </div>
+      {/* Reviews by day + Vendor avg ratings */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ChartCard title="Reviews theo ngày" subtitle="Số lượt đánh giá mỗi ngày">
+          {hasReviews ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={reviewsByDay} margin={{ top: 20, right: 8, left: -24, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+                <XAxis dataKey="day" tick={TICK_STYLE} tickLine={false} axisLine={false}
+                  tickFormatter={dayTick} interval={0} />
+                <YAxis tick={TICK_STYLE} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [v, 'Reviews']} labelFormatter={d => `Ngày ${d}`} />
+                <Bar dataKey="count" name="Reviews" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={18}>
+                  <LabelList dataKey="count" position="top"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? v : ''} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <EmptyChart />}
+        </ChartCard>
+
+        <ChartCard title="Điểm đánh giá trung bình" subtitle="Rating TB theo từng quán liên kết">
+          {hasRatings ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={vendorRatings} layout="vertical" margin={{ top: 0, right: 48, left: 4, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" horizontal={false} />
+                <XAxis type="number" domain={[0, 5]} tick={TICK_STYLE} tickLine={false} axisLine={false}
+                  ticks={[1, 2, 3, 4, 5]} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#6B7280' }}
+                  tickLine={false} axisLine={false} width={120} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [`${v}★`, 'Điểm TB']} />
+                <Bar dataKey="avgRating" name="Điểm TB" fill="#F59E0B" radius={[0, 4, 4, 0]} maxBarSize={22}>
+                  <LabelList dataKey="avgRating" position="right"
+                    style={{ fontSize: '11px', fontWeight: '600', fill: '#374151' }}
+                    formatter={(v) => Number(v) > 0 ? `${v}★` : ''} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
