@@ -41,10 +41,6 @@ function toDayCount(arr: number[]): DayCount[] {
 
 function fmt(d: string) { return new Date(d).toLocaleDateString('vi-VN') }
 
-// ── Fixed MAU window: 12/6 – 12/7/2026 ───────────────────────────────────────
-const MAU_START = '2026-06-12T00:00:00+07:00'
-const MAU_END   = '2026-07-12T23:59:59+07:00'
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchAll<T>(builder: any): Promise<T[]> {
   const PAGE = 1000
@@ -164,24 +160,27 @@ export default async function AdminDashboardPage({
   let storeData: StoreDashboardData | null = null
 
   if (tab === 'user') {
-    // Fetch all needed data in parallel — MAU queries use fixed window MAU_START/MAU_END
+    // MAU window: startISO = đầu tháng, mauEnd = cuối tháng (tháng 7 chỉ đến 12/7)
+    const mauEnd = month === 7 ? '2026-07-12T23:59:59+07:00' : endISO
+
+    // Fetch all needed data in parallel
     const [signInsRes, pvRows, actionsRes, allSignUpsRes] = await Promise.all([
       adminClient.from('user_login_history')
         .select('user_id, created_at')
         .eq('event_type', 'sign_in')
-        .gte('created_at', MAU_START).lte('created_at', MAU_END)
+        .gte('created_at', startISO).lte('created_at', mauEnd)
         .limit(20000),
-      // page_view có >4000 rows — phải paginate để không bị cut off tại 1000
+      // page_view có >4000 rows — paginate để không bị cut off tại 1000
       fetchAll<{ user_id: string; session_id: string; created_at: string }>(
         adminClient.from('user_activity_logs')
           .select('user_id, session_id, created_at')
           .eq('event_type', 'page_view')
-          .gte('created_at', MAU_START).lte('created_at', MAU_END)
+          .gte('created_at', startISO).lte('created_at', mauEnd)
       ),
       adminClient.from('user_activity_logs')
         .select('user_id, event_type, created_at')
         .in('event_type', ['view_vendor', 'search', 'use_ai', 'filter', 'checkout', 'write_review'])
-        .gte('created_at', MAU_START).lte('created_at', MAU_END)
+        .gte('created_at', startISO).lte('created_at', mauEnd)
         .limit(20000),
       adminClient.from('user_login_history')
         .select('user_id, created_at')
